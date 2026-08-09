@@ -241,21 +241,80 @@
   .avail-note{text-align:center; margin-top:18px; font-size:.85rem; color:var(--ink-soft); min-height:20px;}
 
   /* Sections */
-  /* Gallery */
-  .gallery-grid{
-    display:grid; grid-template-columns:repeat(4,1fr); gap:14px;
-    max-width:1200px; margin:0 auto; padding:0 40px;
+  /* Gallery — swipeable slider */
+  .gallery-slider{
+    max-width:900px; margin:0 auto; padding:0 40px;
+    position:relative;
   }
+  .gallery-viewport{
+    position:relative; overflow:hidden; border-radius:var(--r-lg);
+    aspect-ratio:4/3; background:var(--cream-deep);
+    box-shadow:0 24px 60px -20px rgba(46,58,75,.25);
+    cursor:grab;
+  }
+  .gallery-viewport.dragging{cursor:grabbing;}
+  .gallery-track{
+    display:flex; height:100%; width:100%;
+    will-change:transform;
+    transition:transform .55s cubic-bezier(.16,.8,.3,1);
+  }
+  .gallery-track.no-transition{transition:none;}
   .gallery-item{
-    aspect-ratio:4/3;
-    background:var(--cream-deep); border:1px dashed #cfc9b8; border-radius:var(--r-md);
-    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;
-    color:var(--ink-soft); font-size:.72rem; letter-spacing:.03em; text-align:center;
-    position:relative; overflow:hidden;
+    flex:0 0 100%; height:100%;
+    background:var(--cream-deep);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
+    color:var(--ink-soft); font-size:.78rem; letter-spacing:.03em; text-align:center;
+    position:relative; overflow:hidden; user-select:none;
   }
-  .gallery-item svg{width:24px; height:24px; opacity:.35;}
+  .gallery-item::after{
+    content:''; position:absolute; inset:0;
+    background:radial-gradient(circle at 1px 1px, rgba(46,58,75,.07) 1px, transparent 0);
+    background-size:22px 22px; pointer-events:none;
+  }
+  .gallery-item svg{width:30px; height:30px; opacity:.35; position:relative; z-index:1;}
+  .gallery-item span{position:relative; z-index:1;}
+  .gallery-item img{width:100%; height:100%; object-fit:cover; display:block;}
+
+  /* fade+scale animation applied to the active slide as it settles */
+  .gallery-item.active-in{animation:gallerySettle .55s cubic-bezier(.16,.8,.3,1);}
+  @keyframes gallerySettle{
+    from{opacity:.4; transform:scale(.96);}
+    to{opacity:1; transform:scale(1);}
+  }
+
+  .gallery-arrow{
+    position:absolute; top:50%; translate:0 -50%;
+    width:44px; height:44px; border-radius:50%;
+    background:#fff; border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; z-index:3; box-shadow:0 8px 20px -8px rgba(46,58,75,.35);
+    transition:background .2s ease, transform .2s ease, border-color .2s ease;
+  }
+  .gallery-arrow:hover{background:var(--gold); border-color:var(--gold); transform:translateY(-50%) scale(1.06);}
+  .gallery-arrow:hover svg{stroke:#fff;}
+  .gallery-arrow svg{width:18px; height:18px; stroke:var(--ink); transition:stroke .2s ease;}
+  .gallery-arrow.prev{left:-22px;}
+  .gallery-arrow.next{right:-22px;}
+
+  .gallery-dots{
+    display:flex; justify-content:center; gap:9px; margin-top:22px;
+  }
+  .gallery-dot{
+    width:8px; height:8px; border-radius:50%; background:var(--clay-lt);
+    border:none; cursor:pointer; padding:0;
+    transition:background .25s ease, width .25s ease;
+  }
+  .gallery-dot.active{background:var(--gold); width:22px; border-radius:4px;}
+
+  .gallery-counter{
+    text-align:center; margin-top:12px; font-size:.78rem; color:var(--ink-soft); letter-spacing:.03em;
+  }
+
   @media(max-width:900px){
-    .gallery-grid{grid-template-columns:repeat(2,1fr);}
+    .gallery-slider{padding:0 20px;}
+    .gallery-arrow{width:38px; height:38px;}
+    .gallery-arrow.prev{left:4px;}
+    .gallery-arrow.next{right:4px;}
   }
 
   section{padding:100px 0; position:relative;}
@@ -575,15 +634,27 @@
     <h2>Gallery</h2>
     <p>A closer look at the villa, the pools, and the grounds.</p>
   </div>
-  <div class="gallery-grid reveal-stag">
-    <div class="gallery-item r-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10.5" r="1.7"/><path d="M21 16l-5.5-5-4 4-2.5-2.5L3 17"/></svg>Photo 1</div>
-    <div class="gallery-item r-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10.5" r="1.7"/><path d="M21 16l-5.5-5-4 4-2.5-2.5L3 17"/></svg>Photo 2</div>
-    <div class="gallery-item r-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10.5" r="1.7"/><path d="M21 16l-5.5-5-4 4-2.5-2.5L3 17"/></svg>Photo 3</div>
-    <div class="gallery-item r-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10.5" r="1.7"/><path d="M21 16l-5.5-5-4 4-2.5-2.5L3 17"/></svg>Photo 4</div>
-    <div class="gallery-item r-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10.5" r="1.7"/><path d="M21 16l-5.5-5-4 4-2.5-2.5L3 17"/></svg>Photo 5</div>
-    <div class="gallery-item r-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10.5" r="1.7"/><path d="M21 16l-5.5-5-4 4-2.5-2.5L3 17"/></svg>Photo 6</div>
-    <div class="gallery-item r-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10.5" r="1.7"/><path d="M21 16l-5.5-5-4 4-2.5-2.5L3 17"/></svg>Photo 7</div>
-    <div class="gallery-item r-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10.5" r="1.7"/><path d="M21 16l-5.5-5-4 4-2.5-2.5L3 17"/></svg>Photo 8</div>
+  <div class="gallery-slider reveal">
+    <div class="gallery-viewport" id="galleryViewport">
+      <div class="gallery-track" id="galleryTrack">
+        <div class="gallery-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10.5" r="1.7"/><path d="M21 16l-5.5-5-4 4-2.5-2.5L3 17"/></svg><span>Photo 1</span></div>
+        <div class="gallery-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10.5" r="1.7"/><path d="M21 16l-5.5-5-4 4-2.5-2.5L3 17"/></svg><span>Photo 2</span></div>
+        <div class="gallery-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10.5" r="1.7"/><path d="M21 16l-5.5-5-4 4-2.5-2.5L3 17"/></svg><span>Photo 3</span></div>
+        <div class="gallery-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10.5" r="1.7"/><path d="M21 16l-5.5-5-4 4-2.5-2.5L3 17"/></svg><span>Photo 4</span></div>
+        <div class="gallery-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10.5" r="1.7"/><path d="M21 16l-5.5-5-4 4-2.5-2.5L3 17"/></svg><span>Photo 5</span></div>
+        <div class="gallery-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10.5" r="1.7"/><path d="M21 16l-5.5-5-4 4-2.5-2.5L3 17"/></svg><span>Photo 6</span></div>
+        <div class="gallery-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10.5" r="1.7"/><path d="M21 16l-5.5-5-4 4-2.5-2.5L3 17"/></svg><span>Photo 7</span></div>
+        <div class="gallery-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10.5" r="1.7"/><path d="M21 16l-5.5-5-4 4-2.5-2.5L3 17"/></svg><span>Photo 8</span></div>
+      </div>
+      <div class="gallery-arrow prev" id="galleryPrev" aria-label="Previous photo">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </div>
+      <div class="gallery-arrow next" id="galleryNext" aria-label="Next photo">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+    </div>
+    <div class="gallery-dots" id="galleryDots"></div>
+    <div class="gallery-counter" id="galleryCounter"></div>
   </div>
 </section>
 
@@ -1058,6 +1129,99 @@
     });
   }, {threshold:.15});
   document.querySelectorAll('.reveal, .reveal-stag').forEach(el=>io.observe(el));
+
+  // Gallery slider (swipe / drag / arrows / dots)
+  (function(){
+    const viewport = document.getElementById('galleryViewport');
+    const track = document.getElementById('galleryTrack');
+    const slides = Array.from(track.children);
+    const prevBtn = document.getElementById('galleryPrev');
+    const nextBtn = document.getElementById('galleryNext');
+    const dotsWrap = document.getElementById('galleryDots');
+    const counter = document.getElementById('galleryCounter');
+    if(!viewport || !slides.length) return;
+
+    let index = 0;
+    let startX = 0, currentX = 0, isDragging = false, dragOffset = 0;
+
+    slides.forEach((_, i)=>{
+      const dot = document.createElement('button');
+      dot.className = 'gallery-dot' + (i===0 ? ' active' : '');
+      dot.setAttribute('aria-label', 'Go to photo ' + (i+1));
+      dot.addEventListener('click', ()=> goTo(i));
+      dotsWrap.appendChild(dot);
+    });
+    const dots = Array.from(dotsWrap.children);
+
+    function updateUI(){
+      track.style.transform = `translateX(-${index * 100}%)`;
+      dots.forEach((d,i)=> d.classList.toggle('active', i===index));
+      counter.textContent = `${index+1} / ${slides.length}`;
+      slides[index].classList.remove('active-in');
+      void slides[index].offsetWidth; // restart animation
+      slides[index].classList.add('active-in');
+    }
+
+    function goTo(i){
+      index = (i + slides.length) % slides.length;
+      updateUI();
+    }
+
+    prevBtn.addEventListener('click', ()=> goTo(index - 1));
+    nextBtn.addEventListener('click', ()=> goTo(index + 1));
+
+    // Keyboard nav when gallery is focused/visible
+    viewport.setAttribute('tabindex', '0');
+    viewport.addEventListener('keydown', (e)=>{
+      if(e.key === 'ArrowLeft') goTo(index - 1);
+      if(e.key === 'ArrowRight') goTo(index + 1);
+    });
+
+    // Drag / swipe support (mouse + touch via pointer events)
+    function dragStart(x){
+      isDragging = true;
+      startX = x;
+      currentX = x;
+      track.classList.add('no-transition');
+      viewport.classList.add('dragging');
+    }
+    function dragMove(x){
+      if(!isDragging) return;
+      currentX = x;
+      dragOffset = currentX - startX;
+      const percent = (dragOffset / viewport.clientWidth) * 100;
+      track.style.transform = `translateX(calc(-${index * 100}% + ${percent}%))`;
+    }
+    function dragEnd(){
+      if(!isDragging) return;
+      isDragging = false;
+      track.classList.remove('no-transition');
+      viewport.classList.remove('dragging');
+      const threshold = viewport.clientWidth * 0.15;
+      if(dragOffset > threshold) goTo(index - 1);
+      else if(dragOffset < -threshold) goTo(index + 1);
+      else updateUI();
+      dragOffset = 0;
+    }
+
+    viewport.addEventListener('pointerdown', (e)=>{ dragStart(e.clientX); });
+    viewport.addEventListener('pointermove', (e)=>{ dragMove(e.clientX); });
+    viewport.addEventListener('pointerup', dragEnd);
+    viewport.addEventListener('pointerleave', ()=>{ if(isDragging) dragEnd(); });
+
+    // Auto-advance, pausing on interaction
+    let autoTimer = setInterval(()=> goTo(index + 1), 5500);
+    function resetAuto(){
+      clearInterval(autoTimer);
+      autoTimer = setInterval(()=> goTo(index + 1), 5500);
+    }
+    viewport.addEventListener('pointerdown', ()=> clearInterval(autoTimer));
+    viewport.addEventListener('pointerup', resetAuto);
+    prevBtn.addEventListener('click', resetAuto);
+    nextBtn.addEventListener('click', resetAuto);
+
+    updateUI();
+  })();
 
   // Scroll progress bar
   const progressBar = document.getElementById('scrollProgress');

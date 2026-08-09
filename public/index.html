@@ -228,7 +228,7 @@
   .avail-day.past{color:#D2D2D2; cursor:not-allowed; pointer-events:none;}
   .avail-day.open{background:var(--cream-deep); color:var(--ink);}
   .avail-day.open:hover{background:var(--clay-lt); border-color:var(--gold);}
-  .avail-day.booked{background:var(--ink); color:#fff; cursor:not-allowed; opacity:.85; pointer-events:none;}
+  .avail-day.booked{background:var(--ink); color:#fff; opacity:.85;}
   .avail-day.today{border-color:var(--gold); font-weight:700;}
   .avail-day.sel{background:#fff; color:var(--ink); font-weight:700; border:2px solid var(--ink);}
   .avail-day.range{background:var(--clay-lt); color:var(--ink);}
@@ -816,17 +816,15 @@
       if(thisDate < today){
         cls+=' past';
       } else {
-        // Show each day by its OWN status only — never repaint a swath of future days
-        // as "booked" just because they'd conflict with a stay starting at rangeStart.
-        // If the person taps an invalid checkout, pickDate() rejects it with a message
-        // instead of the calendar preemptively graying days out.
+        // Style each day by its own booked status, but don't hard-disable the click —
+        // a day that's "booked" (someone else's occupied night) can still be a valid
+        // CHECKOUT (you leave before their check-in time that same day). pickDate()
+        // is what actually decides validity, based on whether we're picking a
+        // check-in or a checkout, and rejects with a message if it's genuinely invalid.
         const conflicted = dateConflicts(key, selectedPkg);
-        if(conflicted){
-          cls+=' booked';
-        } else {
-          cls+=' open';
-          el.onclick=()=>pickDate(key);
-        }
+        if(conflicted) cls+=' booked';
+        else cls+=' open';
+        el.onclick=()=>pickDate(key);
       }
 
       if(rangeStart && key===rangeStart) cls+=' sel';
@@ -846,17 +844,26 @@
       return;
     }
     if(!rangeStart || (rangeStart && rangeEnd)){
+      if(dateConflicts(key, selectedPkg)){
+        note.textContent = 'That date is already booked and can\'t be used as a check-in. Please pick a different date.';
+        return;
+      }
       rangeStart = key; rangeEnd = null;
       note.textContent = `Check-in: ${key} - now tap a check-out date.`;
     } else {
-      if(key <= rangeStart){ rangeEnd = rangeStart; rangeStart = key; }
-      else { rangeEnd = key; }
+      if(key === rangeStart){
+        note.textContent = 'Please pick a different date for check-out.';
+        return;
+      }
+      const start = key < rangeStart ? key : rangeStart;
+      const end = key < rangeStart ? rangeStart : key;
       // check the whole prospective stay against existing bookings/blocks, for the
       // selected package — a single range-aware check, not a day-by-day loop.
-      if(hasConflictForRange(rangeStart, rangeEnd, selectedPkg)){
+      if(hasConflictForRange(start, end, selectedPkg)){
         note.textContent = 'Some dates in that range are already booked or too close to another stay. Please pick different dates.';
         rangeStart=null; rangeEnd=null;
       } else {
+        rangeStart = start; rangeEnd = end;
         note.textContent = `Selected: ${rangeStart} → ${rangeEnd}.`;
       }
     }

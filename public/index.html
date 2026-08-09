@@ -816,13 +816,11 @@
       if(thisDate < today){
         cls+=' past';
       } else {
-        // While a check-in is already picked and we're choosing check-out, judge each
-        // candidate day by the WHOLE prospective stay (rangeStart → this day), not this
-        // day in isolation — a date can be a fine check-out even if it's mid-occupied
-        // by someone else's later check-in that same day.
-        const conflicted = (rangeStart && !rangeEnd && key!==rangeStart)
-          ? hasConflictForRange(...(key<rangeStart ? [key,rangeStart] : [rangeStart,key]), selectedPkg)
-          : dateConflicts(key, selectedPkg);
+        // Show each day by its OWN status only — never repaint a swath of future days
+        // as "booked" just because they'd conflict with a stay starting at rangeStart.
+        // If the person taps an invalid checkout, pickDate() rejects it with a message
+        // instead of the calendar preemptively graying days out.
+        const conflicted = dateConflicts(key, selectedPkg);
         if(conflicted){
           cls+=' booked';
         } else {

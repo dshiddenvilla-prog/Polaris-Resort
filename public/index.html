@@ -175,7 +175,7 @@
 
   /* Booking bar */
   .booking-anchor{
-    position:absolute; left:0; right:0; bottom:-110px; z-index:5;
+    position:absolute; left:0; right:0; bottom:34px; z-index:5;
   }
   .booking-bar{
     max-width:1060px; margin:0 auto; position:relative;
@@ -185,10 +185,11 @@
     border:1px solid rgba(255,255,255,.4);
     border-radius:var(--r-lg);
     box-shadow:0 24px 50px -20px rgba(30,38,50,.4);
-    display:grid; grid-template-columns:1fr 1fr auto; align-items:stretch;
+    display:grid; grid-template-columns:1fr 1fr 1fr 1fr auto; align-items:stretch;
     overflow:hidden;
   }
-  .bfield{padding:20px 28px; position:relative; cursor:pointer; transition:background .15s; border-right:1px solid rgba(255,255,255,.35);}
+  .bfield{padding:20px 20px; position:relative; cursor:pointer; transition:background .15s; border-right:1px solid rgba(255,255,255,.35);}
+  .bfield:last-of-type{border-right:none;}
   .bfield:hover{background:rgba(255,255,255,.18);}
   .bfield label{display:block; font-size:.64rem; letter-spacing:.1em; text-transform:uppercase; color:rgba(34,38,44,.65); margin-bottom:6px; font-weight:700;}
   .bfield .val{font-family:'Cormorant Garamond',serif; font-size:1rem; color:var(--ink);}
@@ -488,11 +489,19 @@
 
   <div class="wrap booking-anchor" style="padding:0 40px;">
     <div class="booking-bar">
-      <a href="#packages" class="bfield" style="display:flex; flex-direction:column; justify-content:center; grid-column:span 2;">
-        <label>Packages</label>
+      <a href="#availability" class="bfield" style="display:flex; flex-direction:column; justify-content:center;">
+        <label>Check In</label>
+        <span class="val">Select date<small>Choose arrival</small></span>
+      </a>
+      <a href="#availability" class="bfield" style="display:flex; flex-direction:column; justify-content:center;">
+        <label>Check Out</label>
+        <span class="val">Select date<small>Choose departure</small></span>
+      </a>
+      <a href="#packages" class="bfield" style="display:flex; flex-direction:column; justify-content:center;">
+        <label>Package</label>
         <span class="val">2 options<small>Day Tour &amp; Overnight VIP</small></span>
       </a>
-      <a href="#availability" class="bfield" style="display:flex; flex-direction:column; justify-content:center; grid-column:span 2;">
+      <a href="#availability" class="bfield" style="display:flex; flex-direction:column; justify-content:center;">
         <label>Availability</label>
         <span class="val">View the calendar<small>Tap to see open dates</small></span>
       </a>
@@ -501,7 +510,7 @@
   </div>
 </section>
 
-<section class="band-white" style="padding-top:110px;">
+<section class="band-white" style="padding-top:60px;">
 <div class="wrap" style="padding:0 40px; position:relative;">
 
   <div class="stats-strip">

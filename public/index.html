@@ -225,10 +225,10 @@
   .avail-day.open:hover{transform:scale(1.08);}
   .avail-day.sel{animation:popIn .3s ease both;}
   .avail-day.empty{cursor:default;}
-  .avail-day.past{color:#D2D2D2; cursor:not-allowed;}
+  .avail-day.past{color:#D2D2D2; cursor:not-allowed; pointer-events:none;}
   .avail-day.open{background:var(--cream-deep); color:var(--ink);}
   .avail-day.open:hover{background:var(--clay-lt); border-color:var(--gold);}
-  .avail-day.booked{background:var(--ink); color:#fff; cursor:not-allowed; opacity:.85;}
+  .avail-day.booked{background:var(--ink); color:#fff; cursor:not-allowed; opacity:.85; pointer-events:none;}
   .avail-day.today{border-color:var(--gold); font-weight:700;}
   .avail-day.sel{background:#fff; color:var(--ink); font-weight:700; border:2px solid var(--ink);}
   .avail-day.range{background:var(--clay-lt); color:var(--ink);}

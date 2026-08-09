@@ -43,6 +43,7 @@
   h1,h2,h3,.display{font-family:'Cormorant Garamond',serif; font-weight:400; letter-spacing:.02em;}
   a{color:inherit; text-decoration:none;}
   .wrap{max-width:1140px; margin:0 auto; padding:0 40px;}
+  @media(max-width:560px){ .wrap{padding:0 20px;} }
 
   /* Scroll reveal */
   .reveal{opacity:0; transform:translateY(26px); transition:opacity .7s cubic-bezier(.16,.8,.3,1), transform .7s cubic-bezier(.16,.8,.3,1);}
@@ -132,6 +133,34 @@
   .navlinks a:hover::after{right:0;}
   .nav-cta{background:var(--gold); color:#2b2416; padding:12px 26px; font-size:.75rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; border-radius:var(--r-pill); box-shadow:0 10px 24px -10px rgba(185,162,124,.6); transition:transform .25s ease, box-shadow .25s ease, background .2s ease; animation:fadeInDown .7s ease both; animation-delay:.15s;}
   .nav-cta:hover{background:var(--gold-deep); transform:translateY(-2px); box-shadow:0 16px 30px -12px rgba(185,162,124,.8);}
+
+  /* Mobile nav burger + panel */
+  .nav-burger{
+    display:none; flex-direction:column; justify-content:center; align-items:center; gap:5px;
+    width:40px; height:40px; border:1px solid rgba(255,255,255,.35); border-radius:50%;
+    background:rgba(255,255,255,.08); cursor:pointer; flex-shrink:0;
+  }
+  .nav-burger span{width:16px; height:1.5px; background:#fff; transition:transform .3s ease, opacity .3s ease;}
+  .nav-burger.open span:nth-child(1){transform:translateY(6.5px) rotate(45deg);}
+  .nav-burger.open span:nth-child(2){opacity:0;}
+  .nav-burger.open span:nth-child(3){transform:translateY(-6.5px) rotate(-45deg);}
+  .mobile-menu{
+    max-height:0; overflow:hidden; background:rgba(30,38,50,.98); backdrop-filter:blur(10px);
+    display:flex; flex-direction:column; padding:0 24px; transition:max-height .4s ease, padding .4s ease;
+  }
+  .mobile-menu.open{max-height:520px; padding:10px 24px 24px;}
+  .mobile-menu a{
+    color:#fff; font-size:.85rem; letter-spacing:.06em; text-transform:uppercase;
+    padding:14px 4px; border-bottom:1px solid rgba(255,255,255,.1);
+  }
+  .mobile-menu .mobile-cta{
+    margin-top:16px; text-align:center; background:var(--gold); color:#2b2416; font-weight:700;
+    border-radius:var(--r-pill); border:none; padding:14px;
+  }
+  @media(max-width:900px){
+    .navlinks, .nav-cta{display:none;}
+    .nav-burger{display:flex;}
+  }
 
   /* Hero */
   .hero{padding:0; position:relative; height:92vh; min-height:640px; max-height:920px; border-radius:0 0 var(--r-lg) var(--r-lg);}
@@ -528,6 +557,31 @@
     .navlinks{display:none;}
     .foot-grid{flex-direction:column; gap:30px;}
   }
+
+  /* Phone: unstack hero/booking so nothing overlaps */
+  @media(max-width:640px){
+    .hero{height:auto; min-height:0; padding-bottom:26px;}
+    .hero-placeholder{position:relative; inset:auto; height:78vh; min-height:460px;}
+    .hero-copy{position:absolute;}
+    .booking-anchor{position:relative; bottom:auto; left:auto; right:auto; margin-top:-56px; z-index:5;}
+    .booking-bar{grid-template-columns:1fr 1fr;}
+    .bfield{padding:16px 14px;}
+    .bfield label{font-size:.6rem;}
+    .bfield .val{font-size:.9rem;}
+    .search-btn{padding:16px !important; font-size:.78rem;}
+    .hero h1{font-size:clamp(1.7rem,7vw,2.2rem);}
+    .eyebrow{font-size:.62rem; padding:6px 14px;}
+    .counter-num{font-size:clamp(2.6rem,13vw,3.6rem);}
+    .counter-band{row-gap:36px;}
+    .testi-card{padding:36px 20px;}
+    .testi-card::before{font-size:7rem; top:-14px;}
+    .testi-text{font-size:1.15rem;}
+    .testi-drag-hint .drag-circle{width:52px; height:52px;}
+    section{padding:64px 0;}
+  }
+  @media(max-width:480px){
+    .amen-grid{grid-template-columns:1fr; padding:0 20px;}
+  }
 </style>
 </head>
 <body>
@@ -550,7 +604,20 @@
       <a href="admin.html">Admin</a>
     </div>
     <a href="#availability" class="nav-cta shine">Check Availability</a>
+    <button class="nav-burger" id="navBurger" aria-label="Open menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
   </nav>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#packages">Packages</a>
+    <a href="#availability">Availability</a>
+    <a href="#amenities">Amenities</a>
+    <a href="#gallery">Gallery</a>
+    <a href="#policies">Policies</a>
+    <a href="#location">Location</a>
+    <a href="admin.html">Admin</a>
+    <a href="#availability" class="mobile-cta shine">Check Availability</a>
+  </div>
 </header>
 
 <section class="hero">
@@ -565,7 +632,7 @@
     </div>
   </div>
 
-  <div class="wrap booking-anchor" style="padding:0 40px;">
+  <div class="wrap booking-anchor">
     <div class="booking-bar">
       <a href="#availability" class="bfield" style="display:flex; flex-direction:column; justify-content:center;">
         <label>Check In</label>
@@ -589,7 +656,7 @@
 </section>
 
 <section class="band-white" style="padding-top:60px;">
-<div class="wrap" style="padding:0 40px; position:relative;">
+<div class="wrap" style="position:relative;">
 
   <div class="stats-strip">
     <div class="stat-pill">
@@ -718,7 +785,7 @@
 </section>
 
 <section class="band-white" style="padding-top:20px; padding-bottom:70px;">
-  <div class="wrap" style="padding:0 40px;">
+  <div class="wrap">
     <div class="counter-band reveal">
       <div class="counter-item">
         <div class="counter-num"><span class="cnum" data-count="2">0</span></div>
@@ -836,7 +903,7 @@
 </section>
 
 <section class="band-white" id="location">
-  <div class="wrap" style="padding:0 40px;">
+  <div class="wrap">
     <div class="section-head reveal" style="margin-bottom:36px;">
       <div class="section-eyebrow">Find Us</div>
       <h2>Location & Directions</h2>
@@ -1273,6 +1340,24 @@
   });
 
   // Header scroll state
+  // Mobile nav burger toggle
+  const navBurger = document.getElementById('navBurger');
+  const mobileMenu = document.getElementById('mobileMenu');
+  if(navBurger && mobileMenu){
+    navBurger.addEventListener('click', ()=>{
+      const isOpen = mobileMenu.classList.toggle('open');
+      navBurger.classList.toggle('open', isOpen);
+      navBurger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+    mobileMenu.querySelectorAll('a').forEach(a=>{
+      a.addEventListener('click', ()=>{
+        mobileMenu.classList.remove('open');
+        navBurger.classList.remove('open');
+        navBurger.setAttribute('aria-expanded', 'false');
+      });
+    });
+  }
+
   const headerEl = document.querySelector('header');
   const onScroll = () => {
     if(window.scrollY > 40) headerEl.classList.add('scrolled');

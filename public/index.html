@@ -241,6 +241,28 @@
   .avail-note{text-align:center; margin-top:18px; font-size:.85rem; color:var(--ink-soft); min-height:20px;}
 
   /* Sections */
+  /* Gallery */
+  .gallery-grid{
+    display:grid; grid-template-columns:repeat(4,1fr); grid-auto-rows:170px; gap:14px;
+    max-width:1200px; margin:0 auto; padding:0 40px;
+  }
+  .gallery-item{
+    grid-column:span 1; grid-row:span 1;
+    background:var(--cream-deep); border:1px dashed #cfc9b8; border-radius:var(--r-md);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;
+    color:var(--ink-soft); font-size:.72rem; letter-spacing:.03em; text-align:center;
+    position:relative; overflow:hidden;
+  }
+  .gallery-item svg{width:24px; height:24px; opacity:.35;}
+  .gallery-item.big{grid-column:span 2; grid-row:span 2;}
+  .gallery-item.wide{grid-column:span 2;}
+  .gallery-item.tall{grid-row:span 2;}
+  @media(max-width:900px){
+    .gallery-grid{grid-template-columns:repeat(2,1fr); grid-auto-rows:140px;}
+    .gallery-item.big{grid-column:span 2; grid-row:span 2;}
+    .gallery-item.wide{grid-column:span 2;}
+  }
+
   section{padding:100px 0; position:relative;}
   .band-white{background:var(--cream);}
   .band-blue{background:var(--navy-deep); color:#fff;}
@@ -386,6 +408,7 @@
       <a href="#packages">Packages</a>
       <a href="#availability">Availability</a>
       <a href="#amenities">Amenities</a>
+      <a href="#gallery">Gallery</a>
       <a href="#policies">Policies</a>
       <a href="#location">Location</a>
       <a href="admin.html">Admin</a>
@@ -551,6 +574,26 @@
   </div>
 </section>
 
+<section class="band-white" id="gallery">
+  <div class="section-head reveal">
+    <div class="section-eyebrow">Take a Look</div>
+    <h2>Gallery</h2>
+    <p>A closer look at the villa, the pools, and the grounds.</p>
+  </div>
+  <div class="gallery-grid reveal-stag">
+    <div class="gallery-item big r-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10.5" r="1.7"/><path d="M21 16l-5.5-5-4 4-2.5-2.5L3 17"/></svg>Photo 1</div>
+    <div class="gallery-item r-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10.5" r="1.7"/><path d="M21 16l-5.5-5-4 4-2.5-2.5L3 17"/></svg>Photo 2</div>
+    <div class="gallery-item r-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10.5" r="1.7"/><path d="M21 16l-5.5-5-4 4-2.5-2.5L3 17"/></svg>Photo 3</div>
+    <div class="gallery-item tall r-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10.5" r="1.7"/><path d="M21 16l-5.5-5-4 4-2.5-2.5L3 17"/></svg>Photo 4</div>
+    <div class="gallery-item r-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10.5" r="1.7"/><path d="M21 16l-5.5-5-4 4-2.5-2.5L3 17"/></svg>Photo 5</div>
+    <div class="gallery-item r-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10.5" r="1.7"/><path d="M21 16l-5.5-5-4 4-2.5-2.5L3 17"/></svg>Photo 6</div>
+    <div class="gallery-item wide r-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10.5" r="1.7"/><path d="M21 16l-5.5-5-4 4-2.5-2.5L3 17"/></svg>Photo 7</div>
+    <div class="gallery-item r-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10.5" r="1.7"/><path d="M21 16l-5.5-5-4 4-2.5-2.5L3 17"/></svg>Photo 8</div>
+    <div class="gallery-item r-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10.5" r="1.7"/><path d="M21 16l-5.5-5-4 4-2.5-2.5L3 17"/></svg>Photo 9</div>
+    <div class="gallery-item r-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10.5" r="1.7"/><path d="M21 16l-5.5-5-4 4-2.5-2.5L3 17"/></svg>Photo 10</div>
+  </div>
+</section>
+
 <section class="band-white" id="policies">
   <div class="policies">
     <div class="section-head reveal" style="margin-bottom:36px;">
@@ -606,6 +649,7 @@
           <h5>Explore</h5>
           <a href="#packages">Packages</a>
           <a href="#amenities">Amenities</a>
+          <a href="#gallery">Gallery</a>
           <a href="#policies">Policies</a>
         </div>
         <div>
@@ -672,17 +716,23 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M7.5 12.5l3 3 6-6.5"/></svg>
     </div>
     <h3>Booking Request Sent!</h3>
-    <p class="modal-sub">Your request has been recorded. Follow the steps below to confirm it.</p>
+    <p class="modal-sub">Your request has been recorded. A reservation fee is required to confirm your slot — follow the steps below.</p>
 
     <div class="ref-box">
       <div class="ref-lbl">Reference Number</div>
       <div class="ref-num" id="refNumDisplay">POL-000000</div>
     </div>
 
+    <div style="background:#faf7f0; border:1px solid var(--line); border-radius:12px; padding:16px 20px; margin-bottom:20px; text-align:left;">
+      <div style="font-size:.68rem; letter-spacing:.1em; text-transform:uppercase; color:var(--gold-deep); font-weight:700; margin-bottom:6px;">Reservation Fee Required</div>
+      <div style="font-size:.86rem; color:var(--ink); line-height:1.5;">A reservation fee is needed to hold your date. Your slot is not yet guaranteed until this is paid and confirmed by our team.</div>
+    </div>
+
     <ol class="confirm-steps">
       <li>1. Screenshot this screen showing your reference number.</li>
-      <li>2. Send the screenshot to our Facebook page.</li>
-      <li>3. Our team will confirm your booking within 24 hours.</li>
+      <li>2. Message our Facebook page and send the screenshot.</li>
+      <li>3. We'll send you the reservation fee amount and payment details there.</li>
+      <li>4. Once payment is confirmed, your booking is officially reserved.</li>
     </ol>
 
     <a class="fb-btn" id="fbMsgLink" href="https://www.facebook.com/profile.php?id=61585215956780" target="_blank" rel="noopener">

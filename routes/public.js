@@ -59,8 +59,9 @@ router.post('/bookings', bookingLimiter, async (req, res) => {
       return res.status(400).json({ error: 'Guests must be a positive number.' });
     }
 
-    // Double-booking guard
-    const conflict = await hasDateConflict(checkin, checkout);
+    // Double-booking guard (time-aware: accounts for package turnover times,
+    // e.g. a Day Tour can't start on someone else's Overnight checkout day)
+    const conflict = await hasDateConflict(checkin, checkout, pkg);
     if (conflict) {
       return res.status(409).json({
         error: 'The selected dates are no longer available. Please choose different dates.',
@@ -96,18 +97,29 @@ router.get('/availability', async (req, res) => {
   try {
     const [blockedDateDocs, acceptedBookings] = await Promise.all([
       BlockedDate.find().select('date'),
-      Booking.find({ status: 'accepted' }).select('checkin checkout'),
+      Booking.find({ status: 'accepted' }).select('checkin checkout package'),
     ]);
 
+    // Legacy flat list (date-only, checkout day excluded) — kept for backward
+    // compatibility with any client that hasn't picked up the `bookings` field yet.
     const dateSet = new Set(blockedDateDocs.map((d) => d.date));
-
     for (const b of acceptedBookings) {
       for (const d of expandDateRange(b.checkin, b.checkout)) {
         dateSet.add(d);
       }
     }
 
-    return res.json({ blockedDates: Array.from(dateSet).sort() });
+    return res.json({
+      blockedDates: Array.from(dateSet).sort(),
+      // Package + checkin/checkout for each accepted booking, so the frontend
+      // can run the time-aware conflict check (see PKG_TIMES) instead of
+      // treating every date as a simple booked/open boolean.
+      bookings: acceptedBookings.map((b) => ({
+        checkin: b.checkin,
+        checkout: b.checkout,
+        package: b.package,
+      })),
+    });
   } catch (err) {
     console.error('GET /api/availability error:', err);
     return res.status(500).json({ error: 'Something went wrong fetching availability.' });

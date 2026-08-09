@@ -13,9 +13,50 @@ async function generateUniqueRef() {
   return ref;
 }
 
-// Expand an accepted booking's checkin/checkout into individual YYYY-MM-DD dates.
-// Checkout day itself is treated as free (standard hotel convention) — nights are
-// checkin .. checkout-1. If checkin === checkout (day tour), that single date is blocked.
+// Clock times per package — used to detect same-day turnover conflicts.
+// A Day Tour needs the villa from early morning; an Overnight guest doesn't
+// leave until midday, so a Day Tour can't start on someone else's checkout day
+// even though a new Overnight stay could (its check-in is later in the afternoon).
+// NOTE: keep these in sync with PKG_TIMES in public/index.html.
+const PKG_TIMES = {
+  daytour: { checkin: '09:00', checkout: '17:00' },
+  vip: { checkin: '15:00', checkout: '12:00' },
+};
+
+function toMinutes(hhmm) {
+  const [h, m] = hhmm.split(':').map(Number);
+  return h * 60 + m;
+}
+
+// Turns a booking's (date + package + checkin-or-checkout) into an absolute UTC
+// timestamp, e.g. a VIP booking checking in Aug 27 occupies from "Aug 27 15:00".
+function occupiedInstant(dateStr, pkg, isCheckin) {
+  const times = PKG_TIMES[pkg] || PKG_TIMES.vip;
+  const clock = isCheckin ? times.checkin : times.checkout;
+  const d = new Date(dateStr + 'T00:00:00Z');
+  d.setUTCMinutes(d.getUTCMinutes() + toMinutes(clock));
+  return d;
+}
+
+// Expand a date range into individual YYYY-MM-DD calendar dates, INCLUSIVE of
+// the checkout day. Used only for checking against fully-blocked (maintenance)
+// dates, which block the whole day regardless of package/time.
+function expandDateRangeInclusive(checkin, checkout) {
+  const dates = [];
+  const start = new Date(checkin + 'T00:00:00Z');
+  const end = new Date(checkout + 'T00:00:00Z');
+  const cursor = new Date(start);
+  while (cursor <= end) {
+    dates.push(cursor.toISOString().slice(0, 10));
+    cursor.setUTCDate(cursor.getUTCDate() + 1);
+  }
+  return dates;
+}
+
+// Expand an accepted booking's checkin/checkout into individual YYYY-MM-DD dates,
+// checkout day EXCLUSIVE (standard hotel convention: nights are checkin..checkout-1).
+// Used only for the legacy flat blockedDates list returned by /api/availability —
+// the real conflict check below is time-aware, not date-only.
 function expandDateRange(checkin, checkout) {
   const dates = [];
   const start = new Date(checkin + 'T00:00:00Z');
@@ -34,29 +75,31 @@ function expandDateRange(checkin, checkout) {
   return dates;
 }
 
-// Check whether [checkin, checkout) overlaps [otherCheckin, otherCheckout)
-function rangesOverlap(aStart, aEnd, bStart, bEnd) {
-  const as = new Date(aStart + 'T00:00:00Z').getTime();
-  const ae = new Date((aStart === aEnd ? aEnd + 'T23:59:59Z' : aEnd + 'T00:00:00Z')).getTime();
-  const bs = new Date(bStart + 'T00:00:00Z').getTime();
-  const be = new Date((bStart === bEnd ? bEnd + 'T23:59:59Z' : bEnd + 'T00:00:00Z')).getTime();
-  return as < be && bs < ae;
+// Check whether booking A (checkin/checkout/package) overlaps booking B in
+// actual occupied time — not just calendar days.
+function bookingsOverlap(aCheckin, aCheckout, aPkg, bCheckin, bCheckout, bPkg) {
+  const aStart = occupiedInstant(aCheckin, aPkg, true);
+  const aEnd = occupiedInstant(aCheckout, aPkg, false);
+  const bStart = occupiedInstant(bCheckin, bPkg, true);
+  const bEnd = occupiedInstant(bCheckout, bPkg, false);
+  return aStart < bEnd && bStart < aEnd;
 }
 
-// Determine whether a requested checkin/checkout range collides with any
-// accepted booking or blocked date.
-async function hasDateConflict(checkin, checkout) {
+// Determine whether a requested checkin/checkout/package collides with any
+// accepted booking (time-aware — accounts for package turnover times) or any
+// fully-blocked (maintenance) date.
+async function hasDateConflict(checkin, checkout, pkg) {
   const acceptedBookings = await Booking.find({ status: 'accepted' }).select(
-    'checkin checkout'
+    'checkin checkout package'
   );
 
   for (const b of acceptedBookings) {
-    if (rangesOverlap(checkin, checkout, b.checkin, b.checkout)) {
+    if (bookingsOverlap(checkin, checkout, pkg, b.checkin, b.checkout, b.package)) {
       return true;
     }
   }
 
-  const requestedDates = expandDateRange(checkin, checkout);
+  const requestedDates = expandDateRangeInclusive(checkin, checkout);
   const blocked = await BlockedDate.find({
     date: { $in: requestedDates },
   }).select('date');
@@ -73,7 +116,9 @@ function sanitizeString(value, maxLength = 500) {
 module.exports = {
   generateUniqueRef,
   expandDateRange,
-  rangesOverlap,
+  expandDateRangeInclusive,
+  bookingsOverlap,
   hasDateConflict,
   sanitizeString,
+  PKG_TIMES,
 };

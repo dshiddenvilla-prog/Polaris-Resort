@@ -491,7 +491,7 @@
     <div class="section-head reveal">
       <div class="section-eyebrow">Plan Your Visit</div>
       <h2>Check open dates.</h2>
-      <p>Tap a date to select your check-in, then tap again for check-out. Booked dates are shown in black.</p>
+      <p>Choose a package above first, then tap a date to select your check-in, then tap again for check-out. Booked dates are shown in black — availability adjusts to your chosen package, since turnover time differs between a Day Tour and an Overnight stay.</p>
     </div>
 
     <div class="avail-card reveal">
@@ -700,25 +700,78 @@
   // ---- Backend API ----
   const API_BASE = '/api';
 
-  async function getBookedDates(){
+  // Clock times per package — used to detect same-day turnover conflicts.
+  // A Day Tour needs the villa from early morning; an Overnight guest doesn't
+  // leave until midday, so a Day Tour can't start on someone else's checkout day.
+  // Adjust these to match your actual house rules.
+  const PKG_TIMES = {
+    daytour: { checkin:'09:00', checkout:'17:00' },
+    vip:     { checkin:'15:00', checkout:'12:00' }
+  };
+
+  function toMinutes(hhmm){ const [h,m]=hhmm.split(':').map(Number); return h*60+m; }
+
+  // Turns a booking's (date + package) into an absolute start/end timestamp range,
+  // e.g. VIP checking in Aug 27 and checking out Aug 28 occupies
+  // "Aug 27 15:00" through "Aug 28 12:00".
+  function occupiedRange(dateStr, pkgKey, isCheckin){
+    const times = PKG_TIMES[pkgKey] || PKG_TIMES.vip;
+    const clock = isCheckin ? times.checkin : times.checkout;
+    const d = new Date(dateStr+'T00:00:00');
+    d.setMinutes(d.getMinutes()+toMinutes(clock));
+    return d;
+  }
+
+  function bookingRange(b){
+    return {
+      start: occupiedRange(b.checkin, b.package, true),
+      end:   occupiedRange(b.checkout, b.package, false)
+    };
+  }
+
+  async function getAvailabilityData(){
     try{
       const res = await fetch(`${API_BASE}/availability`);
       if(!res.ok) throw new Error('Failed to load availability');
       const data = await res.json();
-      return new Set(data.blockedDates || []);
+      return {
+        // fully closed dates (maintenance, manual blocks) — block every package
+        blockedDates: new Set(data.blockedDates || []),
+        // accepted bookings with package + checkin/checkout, needed for time-aware conflicts.
+        // Falls back to [] if the backend hasn't been updated to send this yet.
+        bookings: data.bookings || []
+      };
     }catch(e){
-      console.error('getBookedDates error:', e);
-      return new Set();
+      console.error('getAvailabilityData error:', e);
+      return { blockedDates:new Set(), bookings:[] };
     }
   }
 
-  let bookedDates = new Set();
+  let blockedDates = new Set();
+  let bookings = [];
   let calDate = new Date();
   let rangeStart = null, rangeEnd = null;
   let selectedPkg = null;
   const pkgLabels = { daytour:'Day Tour - Full Villa Access', vip:'Overnight VIP - with VIP Room' };
 
   function toKey(y,m,d){ return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
+
+  // Would booking `pkgKey` with check-in `key` (and, once both ends are picked, check-out
+  // `endKey`) overlap an existing accepted booking? Falls back to whole-day blocking if
+  // no package is chosen yet or the backend hasn't sent per-booking package/time data.
+  function dateConflicts(key, pkgKey){
+    if(blockedDates.has(key)) return true;
+    if(!bookings.length) return false; // old backend shape — nothing more we can check
+    const times = PKG_TIMES[pkgKey || 'vip'];
+    const candStart = occupiedRange(key, pkgKey || 'vip', true);
+    const candEnd = occupiedRange(key, pkgKey || 'vip', false);
+    // Day-tour occupies same-day; if candEnd ends up before candStart (shouldn't normally
+    // happen) just treat the whole day as occupied.
+    return bookings.some(b=>{
+      const r = bookingRange(b);
+      return candStart < r.end && r.start < candEnd;
+    });
+  }
 
   function renderAvailCal(){
     const y = calDate.getFullYear(), m = calDate.getMonth();
@@ -742,7 +795,7 @@
 
       if(thisDate < today){
         cls+=' past';
-      } else if(bookedDates.has(key)){
+      } else if(dateConflicts(key, selectedPkg)){
         cls+=' booked';
       } else {
         cls+=' open';
@@ -761,21 +814,25 @@
 
   function pickDate(key){
     const note = document.getElementById('avNote');
+    if(!selectedPkg){
+      note.textContent = 'Please choose a package above first, so we can check the right availability.';
+      return;
+    }
     if(!rangeStart || (rangeStart && rangeEnd)){
       rangeStart = key; rangeEnd = null;
       note.textContent = `Check-in: ${key} - now tap a check-out date.`;
     } else {
       if(key <= rangeStart){ rangeEnd = rangeStart; rangeStart = key; }
       else { rangeEnd = key; }
-      // check no booked dates fall inside range
+      // check no conflicting dates fall inside the range, for the selected package
       let clash=false;
       const s=new Date(rangeStart), e=new Date(rangeEnd);
       for(let dt=new Date(s); dt<=e; dt.setDate(dt.getDate()+1)){
         const k=toKey(dt.getFullYear(),dt.getMonth(),dt.getDate());
-        if(bookedDates.has(k)){ clash=true; break; }
+        if(dateConflicts(k, selectedPkg)){ clash=true; break; }
       }
       if(clash){
-        note.textContent = 'Some dates in that range are already booked. Please pick different dates.';
+        note.textContent = 'Some dates in that range are already booked or too close to another stay. Please pick different dates.';
         rangeStart=null; rangeEnd=null;
       } else {
         note.textContent = `Selected: ${rangeStart} → ${rangeEnd}.`;
@@ -789,17 +846,39 @@
   function calNext(){ calDate.setMonth(calDate.getMonth()+1); renderAvailCal(); }
 
   async function refreshAvailability(){
-    bookedDates = await getBookedDates();
+    const data = await getAvailabilityData();
+    blockedDates = data.blockedDates;
+    bookings = data.bookings;
     renderAvailCal();
   }
   refreshAvailability();
 
   function selectPackage(key){
+    const pkgChanged = selectedPkg !== key;
     selectedPkg = key;
     document.querySelectorAll('.pkg-card').forEach(c=>c.classList.remove('pkg-chosen'));
     const btn = document.querySelector(`.pkg-select[onclick="selectPackage('${key}')"]`);
     if(btn) btn.closest('.pkg-card').classList.add('pkg-chosen');
+
+    // Switching packages can change which dates conflict (e.g. a Day Tour can't start
+    // on someone's overnight checkout day even though a new Overnight stay could).
+    // Re-check the currently selected dates against the new package and re-render.
+    if(pkgChanged && rangeStart){
+      const note = document.getElementById('avNote');
+      const s=new Date(rangeStart), e=new Date(rangeEnd||rangeStart);
+      let clash=false;
+      for(let dt=new Date(s); dt<=e; dt.setDate(dt.getDate()+1)){
+        const k=toKey(dt.getFullYear(),dt.getMonth(),dt.getDate());
+        if(dateConflicts(k, selectedPkg)){ clash=true; break; }
+      }
+      if(clash){
+        rangeStart=null; rangeEnd=null;
+        note.textContent = 'Your previously selected dates don\'t work for this package. Please pick again.';
+      }
+    }
+
     updateBookSum();
+    renderAvailCal();
     document.getElementById('availability').scrollIntoView({behavior:'smooth', block:'center'});
   }
 

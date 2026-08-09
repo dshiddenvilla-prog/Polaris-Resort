@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Polaris Resort - The Whole Villa, Yours for the Day</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#3f4d61;
+    --navy-deep:#2e3a4b;
+    --cream:#FFFFFF;
+    --cream-deep:#F4F4F4;
+    --card:#FFFFFF;
+    --ink:#22262c;
+    --ink-soft:#6b6f76;
+    --clay:#2e3a4b;
+    --clay-lt:#EDEDED;
+    --gold:#B9A27C;
+    --gold-deep:#a68f68;
+    --line:#E4E4E4;
+    --r-lg:24px;
+    --r-md:16px;
+    --r-sm:10px;
+    --r-pill:999px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--cream);
+    background-image:radial-gradient(circle at 1px 1px, rgba(46,58,75,.06) 1px, transparent 0);
+    background-size:22px 22px;
+    color:var(--ink);
+    font-family:'Manrope',sans-serif;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    *{animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; scroll-behavior:auto !important;}
+  }
+  h1,h2,h3,.display{font-family:'Fraunces',serif; font-weight:400; letter-spacing:.02em;}
+  a{color:inherit; text-decoration:none;}
+  .wrap{max-width:1140px; margin:0 auto; padding:0 40px;}
+
+  /* Scroll reveal */
+  .reveal{opacity:0; transform:translateY(26px); transition:opacity .7s cubic-bezier(.16,.8,.3,1), transform .7s cubic-bezier(.16,.8,.3,1);}
+  .reveal.in{opacity:1; transform:translateY(0);}
+  .reveal-stag.in .r-item{opacity:1; transform:translateY(0);}
+  .r-item{opacity:0; transform:translateY(22px); transition:opacity .6s cubic-bezier(.16,.8,.3,1), transform .6s cubic-bezier(.16,.8,.3,1);}
+  .reveal-stag.in .r-item:nth-child(1){transition-delay:.05s;}
+  .reveal-stag.in .r-item:nth-child(2){transition-delay:.15s;}
+  .reveal-stag.in .r-item:nth-child(3){transition-delay:.25s;}
+  .reveal-stag.in .r-item:nth-child(4){transition-delay:.35s;}
+
+  /* Shine sweep on gold buttons */
+  .shine{position:relative; overflow:hidden;}
+  .shine::after{
+    content:''; position:absolute; top:0; left:-60%; width:40%; height:100%;
+    background:linear-gradient(115deg, transparent, rgba(255,255,255,.55), transparent);
+    transform:skewX(-20deg); transition:left .6s ease;
+  }
+  .shine:hover::after{left:130%;}
+
+  @keyframes floatY{0%,100%{transform:translateY(0);} 50%{transform:translateY(-8px);}}
+  @keyframes fadeInDown{from{opacity:0; transform:translateY(-14px);} to{opacity:1; transform:translateY(0);}}
+  @keyframes fadeInUp{from{opacity:0; transform:translateY(18px);} to{opacity:1; transform:translateY(0);}}
+  @keyframes popIn{from{opacity:0; transform:scale(.92);} to{opacity:1; transform:scale(1);}}
+  @keyframes shimmerLine{0%{background-position:0% 0;} 100%{background-position:200% 0;}}
+  @keyframes kenBurns{0%{transform:scale(1);} 100%{transform:scale(1.09);}}
+  @keyframes rippleAnim{to{transform:scale(2.6); opacity:0;}}
+  @keyframes pulseDot{0%,100%{box-shadow:0 0 0 0 rgba(185,162,124,.55);} 50%{box-shadow:0 0 0 6px rgba(185,162,124,0);}}
+  img,button,input,select{font-family:inherit;}
+
+  /* Scroll progress */
+  .scroll-progress{position:fixed; top:0; left:0; height:3px; width:0%; background:linear-gradient(90deg, var(--gold-deep), var(--gold)); z-index:200; transition:width .12s linear;}
+
+  /* Shimmering sweep across the hero eyebrow pill */
+  .eyebrow{position:relative; overflow:hidden;}
+  .eyebrow::before{
+    content:''; position:absolute; top:0; left:-60%; width:40%; height:100%;
+    background:linear-gradient(115deg, transparent, rgba(255,255,255,.4), transparent);
+    transform:skewX(-20deg); animation:shineSweep 3.4s ease-in-out infinite; animation-delay:1.4s;
+  }
+  @keyframes shineSweep{0%{left:-60%;} 35%,100%{left:130%;}}
+
+  /* Click ripple */
+  .ripple-span{position:absolute; border-radius:50%; background:rgba(255,255,255,.55); transform:scale(0); animation:rippleAnim .65s ease-out forwards; pointer-events:none;}
+  .pkg-card.featured .ripple-span, .to-top .ripple-span{background:rgba(255,255,255,.35);}
+
+  /* Cursor spotlight on package cards */
+  .pkg-card::after{content:''; position:absolute; inset:0; opacity:0; pointer-events:none; transition:opacity .35s ease; background:radial-gradient(280px circle at var(--mx,50%) var(--my,50%), rgba(255,255,255,.18), transparent 70%);}
+  .pkg-card.featured::after{background:radial-gradient(280px circle at var(--mx,50%) var(--my,50%), rgba(255,255,255,.10), transparent 70%);}
+  .pkg-card:hover::after{opacity:1;}
+
+  /* Back to top */
+  .to-top{position:fixed; right:26px; bottom:26px; width:46px; height:46px; border-radius:50%; border:1px solid rgba(255,255,255,.16); background:var(--navy-deep); color:var(--gold); display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:60; overflow:hidden; opacity:0; visibility:hidden; transform:translateY(14px); transition:opacity .3s ease, transform .3s ease, background .2s ease, color .2s ease; box-shadow:0 16px 32px -16px rgba(0,0,0,.5);}
+  .to-top.show{opacity:1; visibility:visible; transform:translateY(0);}
+  .to-top:hover{background:var(--gold); color:#2b2416;}
+  .to-top svg{width:18px; height:18px; position:relative;}
+
+  /* Scrollspy active link */
+  .navlinks a.active{color:var(--gold);}
+  .navlinks a.active::after{right:0;}
+
+  /* Legend dot pulse */
+  .avail-legend .dot.open{position:relative;}
+  .avail-legend .item:first-child .dot{animation:pulseDot 2.4s ease-in-out infinite;}
+
+  .divider{display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:14px;}
+  .divider span{width:34px; height:1px; background:var(--gold-deep);}
+  .divider svg{width:14px; height:14px; color:var(--gold-deep); transform:rotate(45deg);}
+
+  /* Nav */
+  header{
+    position:fixed; top:0; left:0; right:0; z-index:50;
+    background:linear-gradient(180deg, rgba(46,58,75,.65), rgba(46,58,75,0));
+    transition:background .35s ease, box-shadow .35s ease, backdrop-filter .35s ease;
+  }
+  header.scrolled{background:rgba(46,58,75,.92); backdrop-filter:blur(10px); box-shadow:0 10px 30px -14px rgba(0,0,0,.3);}
+  header.scrolled nav{padding-top:16px; padding-bottom:16px;}
+  nav{display:flex; align-items:center; justify-content:space-between; padding:26px 40px; max-width:1140px; margin:0 auto; transition:padding .35s ease;}
+  .logo{display:flex; align-items:center; gap:10px; font-family:'Fraunces',serif; font-size:1.15rem; letter-spacing:.03em; text-transform:uppercase; color:#fff; animation:fadeInDown .7s ease both;}
+  .logo .mark{width:36px; height:36px; border-radius:var(--r-pill); background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.3); display:flex; align-items:center; justify-content:center; transition:transform .4s ease, background .3s ease;}
+  .logo:hover .mark{transform:rotate(180deg); background:var(--gold);}
+  .logo .mark svg{width:17px; height:17px;}
+  .navlinks{display:flex; gap:30px; font-size:.76rem; letter-spacing:.08em; text-transform:uppercase; color:rgba(255,255,255,.9); animation:fadeInDown .7s ease both; animation-delay:.1s;}
+  .navlinks a{position:relative; padding-bottom:4px; transition:color .2s;}
+  .navlinks a::after{content:''; position:absolute; left:0; right:100%; bottom:0; height:1px; background:var(--gold); transition:right .25s ease;}
+  .navlinks a:hover{color:var(--gold);}
+  .navlinks a:hover::after{right:0;}
+  .nav-cta{background:var(--gold); color:#2b2416; padding:12px 26px; font-size:.75rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; border-radius:var(--r-pill); box-shadow:0 10px 24px -10px rgba(185,162,124,.6); transition:transform .25s ease, box-shadow .25s ease, background .2s ease; animation:fadeInDown .7s ease both; animation-delay:.15s;}
+  .nav-cta:hover{background:var(--gold-deep); transform:translateY(-2px); box-shadow:0 16px 30px -12px rgba(185,162,124,.8);}
+
+  /* Hero */
+  .hero{padding:0; position:relative;}
+  .hero-inner{max-width:none; margin:0; text-align:center;}
+  .hero-placeholder{
+    width:100%; aspect-ratio:16/7.5; border-radius:0 0 var(--r-lg) var(--r-lg); overflow:hidden;
+    border:none; position:relative;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px;
+    color:#5b616a; font-size:.9rem; letter-spacing:.02em;
+  }
+  .hero-placeholder::before{
+    content:''; position:absolute; inset:-6%;
+    background:repeating-linear-gradient(135deg,#c7cbd1,#c7cbd1 10px,#d3d6db 10px,#d3d6db 20px);
+    animation:kenBurns 24s ease-in-out infinite alternate;
+    transform-origin:center;
+  }
+  .hero-placeholder::after{
+    content:''; position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(30,38,50,.6) 0%, rgba(30,38,50,.18) 40%, rgba(30,38,50,.24) 60%, rgba(30,38,50,.62) 100%);
+  }
+  .hero-placeholder svg, .hero-placeholder span{position:relative; z-index:1; filter:brightness(0) invert(1); opacity:.7;}
+  .hero-copy{position:absolute; inset:0; z-index:2; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:0 24px; color:#fff;}
+  .eyebrow{display:inline-flex; align-items:center; gap:10px; font-size:.72rem; letter-spacing:.16em; text-transform:uppercase; color:var(--gold); margin-bottom:18px; padding:7px 18px; border:1px solid rgba(255,255,255,.35); border-radius:var(--r-pill); background:rgba(255,255,255,.08); backdrop-filter:blur(4px); animation:popIn .7s cubic-bezier(.16,.8,.3,1) both;}
+  .hero h1{font-size:clamp(2.2rem,4.6vw,3.4rem); font-weight:400; letter-spacing:.05em; text-transform:uppercase; line-height:1.15; max-width:760px; margin:0 auto; color:#fff; text-shadow:0 4px 30px rgba(0,0,0,.25); animation:fadeInUp .8s cubic-bezier(.16,.8,.3,1) both; animation-delay:.1s;}
+  .hero h1 em{font-style:italic; color:var(--gold);}
+  .hero p{margin:20px auto 0; max-width:480px; color:rgba(255,255,255,.88); font-size:.96rem; animation:fadeInUp .8s cubic-bezier(.16,.8,.3,1) both; animation-delay:.22s;}
+  .hero-corner{position:absolute; width:20px; height:20px; border:1.5px solid var(--gold); z-index:2; animation:floatY 4s ease-in-out infinite;}
+  .hero-corner.tl{top:24px; left:24px; border-right:none; border-bottom:none;}
+  .hero-corner.br{bottom:24px; right:24px; border-left:none; border-top:none; animation-delay:.8s;}
+
+  /* Stats strip */
+  .stats-strip{display:flex; justify-content:center; gap:14px; flex-wrap:wrap; margin-top:36px; position:relative; z-index:2;}
+  .stat-pill{display:flex; align-items:center; gap:10px; background:var(--card); border:1px solid var(--line); border-radius:var(--r-pill); padding:10px 20px 10px 14px; box-shadow:0 14px 30px -18px rgba(30,38,50,.35); transition:transform .25s ease, box-shadow .25s ease;}
+  .stat-pill:hover{transform:translateY(-3px); box-shadow:0 18px 36px -16px rgba(30,38,50,.4);}
+  .stat-pill .ic{width:32px; height:32px; border-radius:var(--r-pill); background:var(--clay-lt); display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+  .stat-pill .ic svg{width:15px; height:15px; color:var(--gold-deep);}
+  .stat-pill .lbl{font-size:.66rem; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-soft);}
+  .stat-pill .val{font-size:.85rem; font-weight:600; color:var(--ink);}
+
+  /* Booking bar */
+  .booking-anchor{
+    position:absolute; left:0; right:0; bottom:-110px; z-index:5;
+  }
+  .booking-bar{
+    max-width:1060px; margin:0 auto; position:relative;
+    background:rgba(255,255,255,.28);
+    backdrop-filter:blur(18px) saturate(140%);
+    -webkit-backdrop-filter:blur(18px) saturate(140%);
+    border:1px solid rgba(255,255,255,.4);
+    border-radius:var(--r-lg);
+    box-shadow:0 24px 50px -20px rgba(30,38,50,.4);
+    display:grid; grid-template-columns:1fr 1fr auto; align-items:stretch;
+    overflow:hidden;
+  }
+  .bfield{padding:20px 28px; position:relative; cursor:pointer; transition:background .15s; border-right:1px solid rgba(255,255,255,.35);}
+  .bfield:hover{background:rgba(255,255,255,.18);}
+  .bfield label{display:block; font-size:.64rem; letter-spacing:.1em; text-transform:uppercase; color:rgba(34,38,44,.65); margin-bottom:6px; font-weight:700;}
+  .bfield .val{font-family:'Fraunces',serif; font-size:1rem; color:var(--ink);}
+  .bfield .val small{display:block; font-family:'Manrope',sans-serif; font-size:.72rem; color:rgba(34,38,44,.6); font-weight:400; margin-top:2px;}
+  .search-btn{width:100%; height:100%; background:var(--gold); color:#2b2416; border:none; padding:16px 36px; font-size:.78rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; cursor:pointer; transition:background .2s; white-space:nowrap;}
+  .search-btn:hover{background:var(--gold-deep);}
+
+  /* Calendar popover */
+  .cal-pop{
+    display:none; position:absolute; top:calc(100% + 10px); left:0; z-index:20;
+    background:var(--card); border:1px solid var(--line); border-radius:var(--r-md);
+    box-shadow:0 20px 50px -16px rgba(46,42,34,.3);
+    padding:18px; width:290px;
+  }
+  .cal-pop.open{display:block;}
+  .cal-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;}
+  .cal-head button{background:var(--cream-deep); border:none; width:28px; height:28px; border-radius:var(--r-pill); cursor:pointer; color:var(--ink);}
+  .cal-head span{font-family:'Fraunces',serif; font-size:.95rem;}
+  .cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:4px; text-align:center;}
+  .cal-grid .dow{font-size:.65rem; color:var(--ink-soft); text-transform:uppercase; padding-bottom:6px;}
+  .cal-grid button{background:none; border:none; padding:8px 0; font-size:.82rem; cursor:pointer; color:var(--ink); border-radius:var(--r-pill);}
+  .cal-grid button:hover{background:var(--cream-deep);}
+  .cal-grid button.sel{background:var(--clay); color:#fff;}
+  .cal-grid button.disabled{color:#DAD0BB; cursor:not-allowed;}
+  .cal-grid button.today{outline:1px solid var(--gold);}
+
+  /* Availability calendar */
+  .avail-card{max-width:700px; margin:0 auto; background:var(--card); border:1px solid var(--line); border-radius:var(--r-lg); padding:36px; box-shadow:0 20px 50px -30px rgba(0,0,0,.2);}
+  .avail-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:24px;}
+  .avail-head .mlabel{font-family:'Fraunces',serif; font-size:1.3rem;}
+  .avail-head button{width:36px; height:36px; border-radius:var(--r-pill); border:1px solid var(--line); background:var(--cream-deep); cursor:pointer; font-size:1rem; color:var(--ink);}
+  .avail-head button:hover{background:var(--clay-lt); border-color:var(--gold);}
+  .avail-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:8px; text-align:center;}
+  .avail-grid .dow{font-size:.7rem; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft); padding-bottom:8px; font-weight:600;}
+  .avail-day{aspect-ratio:1; display:flex; align-items:center; justify-content:center; border-radius:var(--r-sm); font-size:.85rem; cursor:pointer; border:1px solid transparent; transition:all .18s ease;}
+  .avail-day.open:hover{transform:scale(1.08);}
+  .avail-day.sel{animation:popIn .3s ease both;}
+  .avail-day.empty{cursor:default;}
+  .avail-day.past{color:#D2D2D2; cursor:not-allowed;}
+  .avail-day.open{background:var(--cream-deep); color:var(--ink);}
+  .avail-day.open:hover{background:var(--clay-lt); border-color:var(--gold);}
+  .avail-day.booked{background:var(--ink); color:#fff; cursor:not-allowed; opacity:.85;}
+  .avail-day.today{border-color:var(--gold); font-weight:700;}
+  .avail-day.sel{background:#fff; color:var(--ink); font-weight:700; border:2px solid var(--ink);}
+  .avail-day.range{background:var(--clay-lt); color:var(--ink);}
+  .avail-legend{display:flex; gap:22px; justify-content:center; margin-top:26px; flex-wrap:wrap;}
+  .avail-legend .item{display:flex; align-items:center; gap:8px; font-size:.8rem; color:var(--ink-soft);}
+  .avail-legend .dot{width:12px; height:12px; border-radius:4px;}
+  .avail-legend .dot.open{background:var(--cream-deep); border:1px solid var(--line);}
+  .avail-legend .dot.booked{background:var(--ink);}
+  .avail-legend .dot.sel{background:#fff; border:2px solid var(--ink);}
+  .avail-note{text-align:center; margin-top:18px; font-size:.85rem; color:var(--ink-soft); min-height:20px;}
+
+  /* Sections */
+  section{padding:100px 0; position:relative;}
+  .band-white{background:var(--cream);}
+  .band-blue{background:var(--navy-deep); color:#fff;}
+  .band-blue .section-eyebrow{color:var(--gold);}
+  .band-blue .section-head h2{color:#fff;}
+  .band-blue .section-head p{color:rgba(255,255,255,.62);}
+  .band-blue .divider span{background:var(--gold);}
+  .section-head{max-width:580px; margin:0 auto 56px; text-align:center;}
+  .section-eyebrow{font-size:.7rem; letter-spacing:.16em; text-transform:uppercase; color:var(--gold-deep); font-weight:700; margin-bottom:12px;}
+  .section-head h2{font-size:clamp(1.8rem,3.2vw,2.4rem); font-weight:400; letter-spacing:.04em; text-transform:uppercase; color:var(--ink);}
+  .section-head p{margin-top:14px; color:var(--ink-soft);}
+
+  /* Packages - only 2 */
+  .packages-grid{display:grid; grid-template-columns:1fr 1fr; gap:26px; max-width:960px; margin:0 auto;}
+  .pkg-card{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--r-lg);
+    padding:38px; display:flex; flex-direction:column; position:relative; overflow:hidden;
+    transition:box-shadow .25s, transform .25s;
+    box-shadow:0 20px 44px -34px rgba(30,38,50,.4);
+  }
+  .pkg-card::before{content:''; position:absolute; top:0; left:0; right:0; height:4px; background:linear-gradient(90deg, var(--gold), var(--gold-deep));}
+  .pkg-card:hover{box-shadow:0 30px 60px -24px rgba(30,38,50,.3); transform:translateY(-4px);}
+  .pkg-card.pkg-chosen{outline:2.5px solid var(--gold-deep); outline-offset:-2px;}
+  .pkg-card.featured{background:var(--navy); color:#fff; border-color:rgba(255,255,255,.14); box-shadow:0 30px 60px -20px rgba(0,0,0,.5);}
+  .pkg-card.featured::before{background:linear-gradient(90deg, var(--gold), #fff);}
+  .pkg-badge{display:inline-block; font-size:.66rem; letter-spacing:.1em; text-transform:uppercase; font-weight:700; padding:6px 14px; border-radius:var(--r-pill); background:var(--clay-lt); color:var(--gold-deep); margin-bottom:22px; width:fit-content;}
+  .pkg-card.featured .pkg-badge{background:var(--gold); color:#2b2416;}
+  .pkg-card h3{font-size:1.4rem; margin-bottom:8px;}
+  .pkg-card .pkg-desc{font-size:.9rem; color:var(--ink-soft); margin-bottom:24px;}
+  .pkg-card.featured .pkg-desc{color:rgba(255,255,255,.68);}
+  .pkg-feats{list-style:none; display:flex; flex-direction:column; gap:12px; margin-bottom:28px; flex:1;}
+  .pkg-feats li{display:flex; align-items:flex-start; gap:10px; font-size:.86rem; color:var(--ink);}
+  .pkg-card.featured .pkg-feats li{color:rgba(255,255,255,.88);}
+  .pkg-feats li svg{flex-shrink:0; margin-top:2px; width:15px; height:15px; color:#fff; background:var(--clay); border-radius:50%; padding:3px; box-sizing:border-box;}
+  .pkg-card.featured .pkg-feats li svg{background:var(--gold); color:#2b2416;}
+  .pkg-price{display:flex; align-items:baseline; gap:8px; margin-bottom:22px; padding-top:22px; border-top:1px dashed var(--line);}
+  .pkg-card.featured .pkg-price{border-top-color:rgba(255,255,255,.18);}
+  .pkg-price .amt{font-family:'Fraunces',serif; font-size:2rem; color:var(--gold-deep);}
+  .pkg-card.featured .pkg-price .amt{color:var(--gold);}
+  .pkg-price .per{font-size:.8rem; color:var(--ink-soft);}
+  .pkg-card.featured .pkg-price .per{color:rgba(255,255,255,.55);}
+  .pkg-select{width:100%; padding:16px; border:none; border-radius:var(--r-pill); background:var(--gold); color:#2b2416; font-size:.78rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; cursor:pointer; transition:all .2s; box-shadow:0 12px 24px -12px rgba(185,162,124,.7);}
+  .pkg-select:hover{background:var(--gold-deep); transform:translateY(-1px);}
+  .pkg-select:disabled{opacity:.45; cursor:not-allowed; transform:none;}
+
+  /* Booking summary bar */
+  .booksum{max-width:640px; margin:28px auto 0; background:var(--card); border:1px solid var(--line); border-radius:var(--r-md); padding:22px 26px; box-shadow:0 20px 40px -26px rgba(30,38,50,.3); display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap;}
+  .booksum-row{display:flex; gap:36px; flex-wrap:wrap;}
+  .booksum-lbl{display:block; font-size:.64rem; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:4px; font-weight:700;}
+  .booksum-val{display:block; font-size:.92rem; color:var(--ink); font-weight:600;}
+  .booksum .pkg-select{width:auto; padding:14px 28px;}
+
+  /* Modal */
+  .modal-overlay{position:fixed; inset:0; background:rgba(20,22,26,.6); backdrop-filter:blur(3px); z-index:200; display:none; align-items:center; justify-content:center; padding:20px;}
+  .modal-overlay.show{display:flex;}
+  .modal-box{background:var(--card); border-radius:var(--r-lg); max-width:520px; width:100%; max-height:88vh; overflow-y:auto; padding:36px; position:relative; box-shadow:0 40px 80px -30px rgba(0,0,0,.5); animation:popIn .35s cubic-bezier(.16,.8,.3,1) both;}
+  .modal-close{position:absolute; top:18px; right:18px; width:34px; height:34px; border-radius:50%; border:1px solid var(--line); background:transparent; color:var(--ink); font-size:1.1rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background .2s;}
+  .modal-close:hover{background:var(--clay-lt);}
+  .modal-box h3{font-size:1.3rem; margin-bottom:6px; color:var(--ink);}
+  .modal-sub{font-size:.86rem; color:var(--ink-soft); margin-bottom:24px;}
+  .mfield{margin-bottom:16px;}
+  .mfield label{display:block; font-size:.7rem; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:6px; font-weight:700;}
+  .mfield input, .mfield textarea, .mfield select{width:100%; padding:12px 14px; border:1px solid var(--line); border-radius:10px; font-family:inherit; font-size:.9rem; color:var(--ink); background:#fff; transition:border-color .2s;}
+  .mfield input:focus, .mfield textarea:focus, .mfield select:focus{outline:none; border-color:var(--gold);}
+  .mfield textarea{resize:vertical; min-height:70px;}
+  .mgrid2{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  .modal-submit{width:100%; padding:16px; border:none; border-radius:var(--r-pill); background:var(--gold); color:#2b2416; font-size:.8rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; cursor:pointer; transition:background .2s; margin-top:6px;}
+  .modal-submit:hover{background:var(--gold-deep);}
+  .form-err{color:#b3432f; font-size:.8rem; margin-top:-6px; margin-bottom:14px; display:none;}
+  .form-err.show{display:block;}
+
+  /* Confirmation */
+  .confirm-icon{width:64px; height:64px; border-radius:50%; background:var(--clay-lt); color:var(--gold-deep); display:flex; align-items:center; justify-content:center; margin:0 auto 20px;}
+  .confirm-icon svg{width:30px; height:30px;}
+  .ref-box{background:var(--clay-lt); border:1.5px dashed var(--gold-deep); border-radius:12px; padding:18px; text-align:center; margin:20px 0;}
+  .ref-box .ref-lbl{font-size:.68rem; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-soft); font-weight:700; margin-bottom:6px;}
+  .ref-box .ref-num{font-family:'Fraunces',serif; font-size:1.6rem; letter-spacing:.04em; color:var(--ink);}
+  .confirm-steps{background:#faf7f0; border-radius:12px; padding:18px 20px; margin-bottom:20px;}
+  .confirm-steps li{font-size:.86rem; color:var(--ink); margin-bottom:8px; line-height:1.5;}
+  .confirm-steps li:last-child{margin-bottom:0;}
+  .fb-btn{width:100%; padding:16px; border:none; border-radius:var(--r-pill); background:#1877F2; color:#fff; font-size:.82rem; font-weight:700; letter-spacing:.03em; cursor:pointer; text-decoration:none; display:flex; align-items:center; justify-content:center; gap:10px; transition:background .2s; margin-bottom:12px;}
+  .fb-btn:hover{background:#1461c9;}
+  .fb-btn svg{width:18px; height:18px;}
+  .screenshot-btn{width:100%; padding:14px; border:1px solid var(--line); border-radius:var(--r-pill); background:transparent; color:var(--ink); font-size:.78rem; font-weight:700; letter-spacing:.05em; text-transform:uppercase; cursor:pointer; transition:background .2s;}
+  .screenshot-btn:hover{background:var(--clay-lt);}
+  .pkg-card.featured .pkg-select{background:#fff; color:var(--navy-deep); box-shadow:0 12px 24px -12px rgba(0,0,0,.35);}
+  .pkg-card.featured .pkg-select:hover{background:var(--cream-deep);}
+
+  /* Amenities */
+  .amenities{background:var(--navy-deep); color:#fff;}
+  .amenities .section-eyebrow{color:var(--gold);}
+  .amenities .section-head h2{color:#fff;}
+  .amenities .section-head p{color:rgba(255,255,255,.6);}
+  .amenities .divider span{background:var(--gold);}
+  .amen-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:20px; max-width:1140px; margin:0 auto; padding:0 40px;}
+  .amen-item{background:rgba(255,255,255,.06); border-radius:var(--r-md); padding:28px; border:1px solid rgba(255,255,255,.12); transition:background .2s, transform .2s;}
+  .amen-item:hover{background:rgba(255,255,255,.1); transform:translateY(-3px);}
+  .amen-item .ic{width:44px; height:44px; border-radius:var(--r-pill); background:linear-gradient(135deg, var(--gold), var(--gold-deep)); display:flex; align-items:center; justify-content:center; margin-bottom:18px;}
+  .amen-item .ic svg{width:19px; height:19px; color:#2b2416;}
+  .amen-item h4{font-size:1rem; font-weight:600; margin-bottom:6px; font-family:'Manrope',sans-serif; color:#fff;}
+  .amen-item p{font-size:.85rem; color:rgba(255,255,255,.6);}
+
+  /* Policies */
+  .policies{max-width:760px; margin:0 auto; padding:0 40px;}
+  .pol-card{background:var(--card); border:1px solid var(--line); border-radius:var(--r-lg); padding:8px 34px; box-shadow:0 20px 50px -34px rgba(30,38,50,.3);}
+  .pol-row{display:flex; align-items:center; gap:14px; padding:16px 0; border-bottom:1px solid var(--line); font-size:.9rem;}
+  .pol-row:last-child{border-bottom:none;}
+  .pol-row svg{width:17px; height:17px; color:var(--gold-deep); background:var(--clay-lt); border-radius:50%; padding:8px; box-sizing:content-box; flex-shrink:0;}
+
+  /* Footer */
+  footer{padding:70px 40px 50px; margin-top:0; background:var(--navy-deep);}
+  .foot-card{max-width:1140px; margin:0 auto; background:transparent; color:#fff; border-radius:0; padding:0; position:relative; overflow:visible;}
+  .foot-card::before{content:none;}
+  .foot-grid{display:flex; justify-content:space-between; align-items:flex-start; font-size:.85rem; flex-wrap:wrap; gap:30px; position:relative; z-index:1;}
+  .foot-logo{font-family:'Fraunces',serif; font-size:1.25rem; letter-spacing:.03em; text-transform:uppercase; margin-bottom:10px; color:var(--gold);}
+  .foot-cols{display:flex; gap:70px;}
+  .foot-cols h5{font-size:.68rem; letter-spacing:.1em; text-transform:uppercase; color:var(--gold); margin-bottom:14px;}
+  .foot-cols a{display:block; margin-bottom:8px; color:rgba(255,255,255,.7); transition:color .15s;}
+  .foot-cols a:hover{color:var(--gold);}
+  .foot-bottom{margin-top:40px; padding-top:22px; border-top:1px solid rgba(255,255,255,.12); font-size:.75rem; color:rgba(255,255,255,.4); position:relative; z-index:1;}
+
+  @media(max-width:900px){
+    .booking-bar{grid-template-columns:1fr 1fr;}
+    .booking-bar .search-btn{grid-column:1/-1;}
+    .packages-grid{grid-template-columns:1fr;}
+    .amen-grid{grid-template-columns:1fr 1fr;}
+    .navlinks{display:none;}
+    .foot-grid{flex-direction:column; gap:30px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="scroll-progress" id="scrollProgress"></div>
+
+<header>
+  <nav>
+    <div class="logo">
+      <span class="mark"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2L13.8 9.6 21 12l-7.2 2.4L12 22l-1.8-7.6L3 12l7.2-2.4L12 2z" fill="#FAF3E6"/></svg></span>
+      Polaris Resort
+    </div>
+    <div class="navlinks">
+      <a href="#packages">Packages</a>
+      <a href="#availability">Availability</a>
+      <a href="#amenities">Amenities</a>
+      <a href="#policies">Policies</a>
+      <a href="#location">Location</a>
+      <a href="admin.html">Admin</a>
+    </div>
+    <a href="#availability" class="nav-cta shine">Check Availability</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="hero-placeholder">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:40px; height:40px;"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10.5" r="1.7"/><path d="M21 16l-5.5-5-4 4-2.5-2.5L3 17"/></svg>
+    <span>Hero photo placeholder</span>
+    <div class="hero-corner tl"></div>
+    <div class="hero-corner br"></div>
+    <div class="hero-copy">
+      <div class="eyebrow">The Whole Villa, Yours for the Day</div>
+      <h1>Escape to the <em>Extraordinary</em></h1>
+      <p>A private, whole-villa retreat in Sta. Rita, Pampanga - two pools, unlimited videoke, and space that's exclusively yours.</p>
+    </div>
+  </div>
+
+  <div class="wrap booking-anchor" style="padding:0 40px;">
+    <div class="booking-bar">
+      <a href="#packages" class="bfield" style="display:flex; flex-direction:column; justify-content:center; grid-column:span 2;">
+        <label>Packages</label>
+        <span class="val">2 options<small>Day Tour &amp; Overnight VIP</small></span>
+      </a>
+      <a href="#availability" class="bfield" style="display:flex; flex-direction:column; justify-content:center; grid-column:span 2;">
+        <label>Availability</label>
+        <span class="val">View the calendar<small>Tap to see open dates</small></span>
+      </a>
+      <a href="#availability" class="search-btn shine" style="display:flex; align-items:center; justify-content:center; text-decoration:none;">Check Availability</a>
+    </div>
+  </div>
+</section>
+
+<section class="band-white" style="padding-top:110px;">
+<div class="wrap" style="padding:0 40px; position:relative;">
+
+  <div class="stats-strip">
+    <div class="stat-pill">
+      <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2"/><path d="M7.5 10.5V7a4.5 4.5 0 0 1 9 0v3.5"/></svg></span>
+      <span><span class="lbl">Access</span><span class="val" style="display:block;">Whole villa, exclusive</span></span>
+    </div>
+    <div class="stat-pill">
+      <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M4 12h16M12 4c2.5 2.5 2.5 13.5 0 16M12 4c-2.5 2.5-2.5 13.5 0 16"/></svg></span>
+      <span><span class="lbl">Pools</span><span class="val" style="display:block;">Kiddie &amp; adult, 2 total</span></span>
+    </div>
+    <div class="stat-pill">
+      <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="7" rx="8" ry="3.5"/><path d="M4 7v10c0 1.9 3.6 3.5 8 3.5s8-1.6 8-3.5V7"/></svg></span>
+      <span><span class="lbl">Guests</span><span class="val" style="display:block;">Up to 20, overnight</span></span>
+    </div>
+  </div>
+</div>
+</section>
+
+<section class="band-blue" id="packages">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="section-eyebrow">Available Packages</div>
+      <h2>2 options available.</h2>
+      <p>The whole villa, exclusive to your group - choose a day tour, or stay through the night with the VIP room.</p>
+    </div>
+
+    <div class="packages-grid reveal-stag">
+
+      <div class="pkg-card r-item">
+        <span class="pkg-badge">Day Tour</span>
+        <h3>Day Tour - Full Villa Access</h3>
+        <p class="pkg-desc">Enjoy the whole villa during the day. Perfect for birthday celebrations, team outings, barkada trips, and family fun.</p>
+        <ul class="pkg-feats">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M7.5 12.5l3 3 6-6.5"/></svg>Kiddie pool (3ft) & adult pool (5ft)</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M7.5 12.5l3 3 6-6.5"/></svg>Outdoor karaoke until 10 PM</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M7.5 12.5l3 3 6-6.5"/></svg>BBQ griller, fridge & rice cooker</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M7.5 12.5l3 3 6-6.5"/></svg>Free Wi-Fi 100Mbps, 2 restrooms, secured parking</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M7.5 12.5l3 3 6-6.5"/></svg>Up to 15 guests · whole villa exclusive</li>
+        </ul>
+        <div class="pkg-price"><span class="amt" data-count="6000">₱6,000</span><span class="per">starting, per day tour</span></div>
+        <button class="pkg-select shine" onclick="selectPackage('daytour')">Select Day Tour</button>
+      </div>
+
+      <div class="pkg-card featured r-item">
+        <span class="pkg-badge">VIP</span>
+        <h3>Overnight VIP - with VIP Room</h3>
+        <p class="pkg-desc">Everything in the Day Tour, plus the exclusive VIP Room with unlimited videoke, Netflix streaming, and a pop-up convertible sofa bed.</p>
+        <ul class="pkg-feats">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M7.5 12.5l3 3 6-6.5"/></svg>All Day Tour inclusions</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M7.5 12.5l3 3 6-6.5"/></svg>Exclusive VIP Room (A/C)</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M7.5 12.5l3 3 6-6.5"/></svg>Unlimited videoke + Netflix streaming</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M7.5 12.5l3 3 6-6.5"/></svg>Pop-up / convertible sofa bed</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M7.5 12.5l3 3 6-6.5"/></svg>Up to 20 guests</li>
+        </ul>
+        <div class="pkg-price"><span class="amt" data-count="10000">₱10,000</span><span class="per">starting, per overnight stay</span></div>
+        <button class="pkg-select shine" onclick="selectPackage('vip')">Select Overnight VIP</button>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="band-white" id="availability">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="section-eyebrow">Plan Your Visit</div>
+      <h2>Check open dates.</h2>
+      <p>Tap a date to select your check-in, then tap again for check-out. Booked dates are shown in black.</p>
+    </div>
+
+    <div class="avail-card reveal">
+      <div class="avail-head">
+        <button onclick="calPrev()">‹</button>
+        <span class="mlabel" id="avMonthLabel"></span>
+        <button onclick="calNext()">›</button>
+      </div>
+      <div class="avail-grid" id="avGrid">
+        <div class="dow">Su</div><div class="dow">Mo</div><div class="dow">Tu</div><div class="dow">We</div><div class="dow">Th</div><div class="dow">Fr</div><div class="dow">Sa</div>
+      </div>
+      <div class="avail-legend">
+        <div class="item"><span class="dot open"></span>Available</div>
+        <div class="item"><span class="dot booked"></span>Booked</div>
+        <div class="item"><span class="dot sel"></span>Selected</div>
+      </div>
+      <div class="avail-note" id="avNote"></div>
+    </div>
+
+    <div class="booksum reveal" id="bookSum">
+      <div class="booksum-row">
+        <div><span class="booksum-lbl">Package</span><span class="booksum-val" id="sumPkg">Not selected</span></div>
+        <div><span class="booksum-lbl">Dates</span><span class="booksum-val" id="sumDates">Not selected</span></div>
+      </div>
+      <button class="pkg-select shine" id="continueBtn" onclick="openBookingForm()" disabled>Continue to Booking</button>
+    </div>
+  </div>
+</section>
+
+<section class="band-blue" id="amenities">
+  <div class="section-head reveal">
+    <div class="section-eyebrow">Why Guests Choose Us</div>
+    <h2>A private, whole-villa escape.</h2>
+    <p>Designed around your group - and no one else.</p>
+  </div>
+  <div class="amen-grid reveal-stag">
+    <div class="amen-item r-item">
+      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2"/><path d="M7.5 10.5V7a4.5 4.5 0 0 1 9 0v3.5"/></svg></div>
+      <h4>Exclusive Whole-Villa Rental</h4>
+      <p>The entire property is yours alone - no shared spaces, no other guests during your stay.</p>
+    </div>
+    <div class="amen-item r-item">
+      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M4 12h16M12 4c2.5 2.5 2.5 13.5 0 16M12 4c-2.5 2.5-2.5 13.5 0 16"/></svg></div>
+      <h4>Two Pools Included</h4>
+      <p>A kiddie pool (3ft) and adult pool (5ft) for guests of every age.</p>
+    </div>
+    <div class="amen-item r-item">
+      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2.5" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0"/><line x1="12" y1="17.5" x2="12" y2="21.5"/><line x1="8.5" y1="21.5" x2="15.5" y2="21.5"/></svg></div>
+      <h4>Free Outdoor Karaoke</h4>
+      <p>Sing the day away with outdoor videoke available until 10:00 PM.</p>
+    </div>
+    <div class="amen-item r-item">
+      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="20" x2="3" y2="16"/><line x1="8.5" y1="20" x2="8.5" y2="13"/><line x1="14" y1="20" x2="14" y2="9"/><line x1="19.5" y1="20" x2="19.5" y2="4.5"/></svg></div>
+      <h4>Free High-Speed Wi-Fi</h4>
+      <p>Complimentary Wi-Fi up to 100 Mbps throughout the villa.</p>
+    </div>
+  </div>
+</section>
+
+<section class="band-white" id="policies">
+  <div class="policies">
+    <div class="section-head reveal" style="margin-bottom:36px;">
+      <div class="section-eyebrow">Good to Know</div>
+      <h2>House Rules & Policies</h2>
+    </div>
+    <div class="pol-card reveal">
+      <div class="pol-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>Check-in: 3:00 PM onwards</div>
+      <div class="pol-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>Check-out: 12:00 NN (fixed, no extensions)</div>
+      <div class="pol-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2.5" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0"/><line x1="12" y1="17.5" x2="12" y2="21.5"/><line x1="8.5" y1="21.5" x2="15.5" y2="21.5"/></svg>Outdoor karaoke until 10:00 PM only</div>
+      <div class="pol-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="5.5" y1="5.5" x2="18.5" y2="18.5"/></svg>No generator available on-site</div>
+      <div class="pol-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 8.5V6a5 5 0 0 1 10 0v2.5"/><rect x="4.5" y="8.5" width="15" height="13" rx="3"/></svg>Bring your own towels & toiletries</div>
+      <div class="pol-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c-2.8 0-5 2.2-5 5 0 3.6 5 10.5 5 10.5S17 10.6 17 7c0-2.8-2.2-5-5-5z"/><circle cx="12" cy="7" r="2"/></svg>Holiday rates may change without prior notice</div>
+      <div class="pol-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="7" rx="8" ry="3.5"/><path d="M4 7v10c0 1.9 3.6 3.5 8 3.5s8-1.6 8-3.5V7"/></svg>Priority booking for guests with downpayment</div>
+    </div>
+  </div>
+</section>
+
+<section class="band-white" id="location">
+  <div class="wrap" style="padding:0 40px;">
+    <div class="section-head reveal" style="margin-bottom:36px;">
+      <div class="section-eyebrow">Find Us</div>
+      <h2>Location & Directions</h2>
+      <p>Sta. Rita, Pampanga - easy to find, easy to reach.</p>
+    </div>
+    <div class="reveal" style="border-radius:20px; overflow:hidden; box-shadow:0 30px 60px -24px rgba(30,38,50,.3);">
+      <iframe
+        src="https://www.google.com/maps?q=15.0094608,120.6155394&hl=en&z=17&output=embed"
+        width="100%"
+        height="420"
+        style="border:0; display:block; border-radius:20px;"
+        allowfullscreen=""
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        title="Polaris Resort Location">
+      </iframe>
+    </div>
+    <div style="margin-top:20px; text-align:center;">
+      <a href="https://maps.app.goo.gl/W2T6fSFRP8JJQNQo6" target="_blank" rel="noopener" class="shine" style="display:inline-flex; align-items:center; justify-content:center; text-decoration:none; padding:16px 36px; background:var(--gold); color:#2b2416; border:none; font-size:.78rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; border-radius:999px; transition:background .2s;">Open in Google Maps</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="foot-card">
+    <div class="foot-grid">
+      <div>
+        <div class="foot-logo">Polaris Resort</div>
+        <p style="max-width:240px; color:rgba(250,243,230,.6);">The whole villa, yours for the day - Sta. Rita, Pampanga.</p>
+      </div>
+      <div class="foot-cols">
+        <div>
+          <h5>Explore</h5>
+          <a href="#packages">Packages</a>
+          <a href="#amenities">Amenities</a>
+          <a href="#policies">Policies</a>
+        </div>
+        <div>
+          <h5>Contact</h5>
+          <a href="tel:+639985140880">+63 998 514 0880</a>
+          <a href="https://www.facebook.com/share/1CaApGdLXg/?mibextid=wwXIfr" target="_blank">Facebook</a>
+          <a href="admin.html">Admin Panel</a>
+        </div>
+      </div>
+    </div>
+    <div class="foot-bottom">© 2026 Polaris Resort. All rights reserved.</div>
+  </div>
+</footer>
+
+<button class="to-top" id="toTop" aria-label="Back to top">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><path d="M6 11l6-6 6 6"/></svg>
+</button>
+
+<!-- Booking Form Modal -->
+<div class="modal-overlay" id="formOverlay">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('formOverlay')">✕</button>
+    <h3>Guest Information</h3>
+    <p class="modal-sub">Fill in your details to reserve <span id="formPkgLabel">this package</span> for <span id="formDatesLabel">your selected dates</span>.</p>
+
+    <div class="mfield">
+      <label>Full Name</label>
+      <input type="text" id="gName" placeholder="Juan Dela Cruz">
+    </div>
+    <div class="mgrid2">
+      <div class="mfield">
+        <label>Contact Number</label>
+        <input type="tel" id="gPhone" placeholder="09XX XXX XXXX">
+      </div>
+      <div class="mfield">
+        <label>Facebook Name (optional)</label>
+        <input type="text" id="gFb" placeholder="For verification">
+      </div>
+    </div>
+    <div class="mgrid2">
+      <div class="mfield">
+        <label>Number of Guests</label>
+        <input type="number" id="gGuests" min="1" max="30" placeholder="e.g. 12">
+      </div>
+      <div class="mfield">
+        <label>Email (optional)</label>
+        <input type="email" id="gEmail" placeholder="you@email.com">
+      </div>
+    </div>
+    <div class="mfield">
+      <label>Special Requests (optional)</label>
+      <textarea id="gNotes" placeholder="Anything we should know?"></textarea>
+    </div>
+    <div class="form-err" id="formErr">Please fill in your name, contact number, and number of guests.</div>
+    <button class="modal-submit" onclick="submitBooking()">Book Now</button>
+  </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div class="modal-overlay" id="confirmOverlay">
+  <div class="modal-box" style="text-align:center;">
+    <button class="modal-close" onclick="closeModal('confirmOverlay')">✕</button>
+    <div class="confirm-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M7.5 12.5l3 3 6-6.5"/></svg>
+    </div>
+    <h3>Booking Request Sent!</h3>
+    <p class="modal-sub">Your request has been recorded. Follow the steps below to confirm it.</p>
+
+    <div class="ref-box">
+      <div class="ref-lbl">Reference Number</div>
+      <div class="ref-num" id="refNumDisplay">POL-000000</div>
+    </div>
+
+    <ol class="confirm-steps">
+      <li>1. Screenshot this screen showing your reference number.</li>
+      <li>2. Send the screenshot to our Facebook page.</li>
+      <li>3. Our team will confirm your booking within 24 hours.</li>
+    </ol>
+
+    <a class="fb-btn" id="fbMsgLink" href="https://www.facebook.com/profile.php?id=61585215956780" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 12.06C22 6.51 17.52 2 12 2S2 6.51 2 12.06c0 5.02 3.66 9.18 8.44 9.94v-7.03H7.9v-2.91h2.54V9.85c0-2.5 1.49-3.89 3.77-3.89 1.09 0 2.23.2 2.23.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-.44 2.91h-2.34V22c4.78-.76 8.44-4.92 8.44-9.94Z"/></svg>
+      Message us on Facebook
+    </a>
+    <button class="screenshot-btn" onclick="closeModal('confirmOverlay')">Done</button>
+  </div>
+</div>
+
+<script>
+  const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  function fmt(d){ return d? `${months[d.getMonth()].slice(0,3)} ${d.getDate()}, ${d.getFullYear()}` : ''; }
+
+  // ---- Backend API ----
+  const API_BASE = '/api';
+
+  async function getBookedDates(){
+    try{
+      const res = await fetch(`${API_BASE}/availability`);
+      if(!res.ok) throw new Error('Failed to load availability');
+      const data = await res.json();
+      return new Set(data.blockedDates || []);
+    }catch(e){
+      console.error('getBookedDates error:', e);
+      return new Set();
+    }
+  }
+
+  let bookedDates = new Set();
+  let calDate = new Date();
+  let rangeStart = null, rangeEnd = null;
+  let selectedPkg = null;
+  const pkgLabels = { daytour:'Day Tour - Full Villa Access', vip:'Overnight VIP - with VIP Room' };
+
+  function toKey(y,m,d){ return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
+
+  function renderAvailCal(){
+    const y = calDate.getFullYear(), m = calDate.getMonth();
+    document.getElementById('avMonthLabel').textContent = `${months[m]} ${y}`;
+    const grid = document.getElementById('avGrid');
+    grid.querySelectorAll('.avail-day').forEach(n=>n.remove());
+
+    const firstDay = new Date(y,m,1).getDay();
+    const daysInMonth = new Date(y,m+1,0).getDate();
+    const today = new Date(); today.setHours(0,0,0,0);
+
+    for(let i=0;i<firstDay;i++){
+      const el=document.createElement('div'); el.className='avail-day empty'; grid.appendChild(el);
+    }
+    for(let d=1; d<=daysInMonth; d++){
+      const el=document.createElement('div');
+      const key = toKey(y,m,d);
+      const thisDate = new Date(y,m,d);
+      let cls='avail-day';
+      if(thisDate.getTime()===today.getTime()) cls+=' today';
+
+      if(thisDate < today){
+        cls+=' past';
+      } else if(bookedDates.has(key)){
+        cls+=' booked';
+      } else {
+        cls+=' open';
+        el.onclick=()=>pickDate(key);
+      }
+
+      if(rangeStart && key===rangeStart) cls+=' sel';
+      else if(rangeEnd && key===rangeEnd) cls+=' sel';
+      else if(rangeStart && rangeEnd && key>rangeStart && key<rangeEnd) cls+=' range';
+
+      el.className=cls;
+      el.textContent=d;
+      grid.appendChild(el);
+    }
+  }
+
+  function pickDate(key){
+    const note = document.getElementById('avNote');
+    if(!rangeStart || (rangeStart && rangeEnd)){
+      rangeStart = key; rangeEnd = null;
+      note.textContent = `Check-in: ${key} - now tap a check-out date.`;
+    } else {
+      if(key <= rangeStart){ rangeEnd = rangeStart; rangeStart = key; }
+      else { rangeEnd = key; }
+      // check no booked dates fall inside range
+      let clash=false;
+      const s=new Date(rangeStart), e=new Date(rangeEnd);
+      for(let dt=new Date(s); dt<=e; dt.setDate(dt.getDate()+1)){
+        const k=toKey(dt.getFullYear(),dt.getMonth(),dt.getDate());
+        if(bookedDates.has(k)){ clash=true; break; }
+      }
+      if(clash){
+        note.textContent = 'Some dates in that range are already booked. Please pick different dates.';
+        rangeStart=null; rangeEnd=null;
+      } else {
+        note.textContent = `Selected: ${rangeStart} → ${rangeEnd}.`;
+      }
+    }
+    updateBookSum();
+    renderAvailCal();
+  }
+
+  function calPrev(){ calDate.setMonth(calDate.getMonth()-1); renderAvailCal(); }
+  function calNext(){ calDate.setMonth(calDate.getMonth()+1); renderAvailCal(); }
+
+  async function refreshAvailability(){
+    bookedDates = await getBookedDates();
+    renderAvailCal();
+  }
+  refreshAvailability();
+
+  function selectPackage(key){
+    selectedPkg = key;
+    document.querySelectorAll('.pkg-card').forEach(c=>c.classList.remove('pkg-chosen'));
+    const btn = document.querySelector(`.pkg-select[onclick="selectPackage('${key}')"]`);
+    if(btn) btn.closest('.pkg-card').classList.add('pkg-chosen');
+    updateBookSum();
+    document.getElementById('availability').scrollIntoView({behavior:'smooth', block:'center'});
+  }
+
+  function updateBookSum(){
+    const sumPkg = document.getElementById('sumPkg');
+    const sumDates = document.getElementById('sumDates');
+    const continueBtn = document.getElementById('continueBtn');
+    sumPkg.textContent = selectedPkg ? pkgLabels[selectedPkg] : 'Not selected';
+    sumDates.textContent = (rangeStart && rangeEnd) ? `${rangeStart} → ${rangeEnd}` : 'Not selected';
+    continueBtn.disabled = !(selectedPkg && rangeStart && rangeEnd);
+  }
+  updateBookSum();
+
+  function openModal(id){ document.getElementById(id).classList.add('show'); }
+  function closeModal(id){ document.getElementById(id).classList.remove('show'); }
+
+  function openBookingForm(){
+    if(!(selectedPkg && rangeStart && rangeEnd)) return;
+    document.getElementById('formPkgLabel').textContent = pkgLabels[selectedPkg];
+    document.getElementById('formDatesLabel').textContent = `${rangeStart} → ${rangeEnd}`;
+    document.getElementById('formErr').classList.remove('show');
+    openModal('formOverlay');
+  }
+
+  async function submitBooking(){
+    const name = document.getElementById('gName').value.trim();
+    const phone = document.getElementById('gPhone').value.trim();
+    const fb = document.getElementById('gFb').value.trim();
+    const guests = document.getElementById('gGuests').value.trim();
+    const email = document.getElementById('gEmail').value.trim();
+    const notes = document.getElementById('gNotes').value.trim();
+    const err = document.getElementById('formErr');
+
+    if(!name || !phone || !guests){
+      err.classList.add('show');
+      err.textContent = 'Please fill in your name, phone, and number of guests.';
+      return;
+    }
+    err.classList.remove('show');
+
+    const submitBtn = document.querySelector('#formOverlay button[onclick="submitBooking()"]');
+    const originalBtnText = submitBtn ? submitBtn.textContent : null;
+    if(submitBtn){ submitBtn.disabled = true; submitBtn.textContent = 'Submitting…'; }
+
+    try{
+      const res = await fetch(`${API_BASE}/bookings`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          package: selectedPkg,
+          packageLabel: pkgLabels[selectedPkg],
+          checkin: rangeStart,
+          checkout: rangeEnd,
+          name, phone, fb,
+          guests: Number(guests),
+          email, notes
+        })
+      });
+
+      const body = await res.json();
+
+      if(!res.ok){
+        err.textContent = body.error || 'Something went wrong. Please try again.';
+        err.classList.add('show');
+        return;
+      }
+
+      document.getElementById('refNumDisplay').textContent = body.ref;
+      closeModal('formOverlay');
+      openModal('confirmOverlay');
+
+      // reset form
+      ['gName','gPhone','gFb','gGuests','gEmail','gNotes'].forEach(id=>document.getElementById(id).value='');
+
+      // refresh availability + reset date selection since dates may now be pending/taken
+      rangeStart = null; rangeEnd = null; selectedPkg = null;
+      updateBookSum();
+      refreshAvailability();
+    }catch(e){
+      console.error('submitBooking error:', e);
+      err.textContent = 'Could not reach the server. Please check your connection and try again.';
+      err.classList.add('show');
+    }finally{
+      if(submitBtn){ submitBtn.disabled = false; submitBtn.textContent = originalBtnText; }
+    }
+  }
+
+  document.querySelectorAll('.modal-overlay').forEach(ov=>{
+    ov.addEventListener('click', (e)=>{ if(e.target===ov) closeModal(ov.id); });
+  });
+
+  // Header scroll state
+  const headerEl = document.querySelector('header');
+  const onScroll = () => {
+    if(window.scrollY > 40) headerEl.classList.add('scrolled');
+    else headerEl.classList.remove('scrolled');
+  };
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+
+  // Scroll-reveal
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(en=>{
+      if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); }
+    });
+  }, {threshold:.15});
+  document.querySelectorAll('.reveal, .reveal-stag').forEach(el=>io.observe(el));
+
+  // Scroll progress bar
+  const progressBar = document.getElementById('scrollProgress');
+  const onProgress = () => {
+    const h = document.documentElement;
+    const scrolled = h.scrollTop;
+    const max = h.scrollHeight - h.clientHeight;
+    progressBar.style.width = (max>0 ? (scrolled/max)*100 : 0) + '%';
+  };
+  window.addEventListener('scroll', onProgress, {passive:true});
+  onProgress();
+
+  // Back-to-top button
+  const toTop = document.getElementById('toTop');
+  const onToTopScroll = () => {
+    if(window.scrollY > 560) toTop.classList.add('show');
+    else toTop.classList.remove('show');
+  };
+  window.addEventListener('scroll', onToTopScroll, {passive:true});
+  onToTopScroll();
+  toTop.addEventListener('click', ()=> window.scrollTo({top:0, behavior:'smooth'}));
+
+  // Scrollspy - highlight the current section in the nav
+  const navAnchors = document.querySelectorAll('.navlinks a[href^="#"]');
+  const spySections = [...navAnchors].map(a=>document.querySelector(a.getAttribute('href'))).filter(Boolean);
+  const spyIo = new IntersectionObserver((entries)=>{
+    entries.forEach(en=>{
+      if(en.isIntersecting){
+        const id = '#'+en.target.id;
+        navAnchors.forEach(a=> a.classList.toggle('active', a.getAttribute('href')===id));
+      }
+    });
+  }, {rootMargin:'-45% 0px -50% 0px', threshold:0});
+  spySections.forEach(sec=>spyIo.observe(sec));
+
+  // Click ripple on primary buttons
+  function attachRipple(el){
+    el.addEventListener('click', (e)=>{
+      const rect = el.getBoundingClientRect();
+      const size = Math.max(rect.width, rect.height);
+      const span = document.createElement('span');
+      span.className = 'ripple-span';
+      span.style.width = span.style.height = size + 'px';
+      span.style.left = (e.clientX - rect.left - size/2) + 'px';
+      span.style.top = (e.clientY - rect.top - size/2) + 'px';
+      el.appendChild(span);
+      setTimeout(()=> span.remove(), 650);
+    });
+  }
+  document.querySelectorAll('.shine, .pkg-select, .to-top').forEach(attachRipple);
+
+  // Cursor spotlight glow on package cards
+  document.querySelectorAll('.pkg-card').forEach(card=>{
+    card.addEventListener('mousemove', (e)=>{
+      const rect = card.getBoundingClientRect();
+      card.style.setProperty('--mx', (e.clientX - rect.left) + 'px');
+      card.style.setProperty('--my', (e.clientY - rect.top) + 'px');
+    });
+  });
+
+  // Price count-up when scrolled into view
+  const countEls = document.querySelectorAll('.amt[data-count]');
+  const countIo = new IntersectionObserver((entries)=>{
+    entries.forEach(en=>{
+      if(!en.isIntersecting) return;
+      const el = en.target;
+      const target = parseInt(el.dataset.count, 10);
+      const duration = 1200;
+      const start = performance.now();
+      el.textContent = '₱0';
+      function tick(now){
+        const p = Math.min((now-start)/duration, 1);
+        const eased = 1 - Math.pow(1-p, 3);
+        el.textContent = '₱' + Math.round(target*eased).toLocaleString('en-PH');
+        if(p<1) requestAnimationFrame(tick);
+        else el.textContent = '₱' + target.toLocaleString('en-PH');
+      }
+      requestAnimationFrame(tick);
+      countIo.unobserve(el);
+    });
+  }, {threshold:.6});
+  countEls.forEach(el=>countIo.observe(el));
+</script>
+
+</body>
+</html>

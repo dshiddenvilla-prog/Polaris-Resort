@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin - Polaris Resort</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#3f4d61;
+    --navy-deep:#2e3a4b;
+    --cream:#FFFFFF;
+    --cream-deep:#F4F4F4;
+    --card:#FFFFFF;
+    --ink:#22262c;
+    --ink-soft:#6b6f76;
+    --clay-lt:#EDEDED;
+    --gold:#B9A27C;
+    --gold-deep:#a68f68;
+    --line:#E4E4E4;
+    --r-lg:24px;
+    --r-md:16px;
+    --r-sm:10px;
+    --r-pill:999px;
+    --ok:#3f8c5f;
+    --bad:#b3432f;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:'Inter',sans-serif;
+    background:var(--cream-deep);
+    color:var(--ink);
+    min-height:100vh;
+  }
+  h1,h2,h3{font-family:'Fraunces',serif; font-weight:500;}
+
+  /* Login gate */
+  #loginGate{position:fixed; inset:0; background:var(--navy-deep); display:flex; align-items:center; justify-content:center; z-index:500;}
+  #loginGate.hidden{display:none;}
+  .login-box{background:var(--card); border-radius:var(--r-lg); padding:44px; width:100%; max-width:380px; text-align:center; box-shadow:0 30px 60px -20px rgba(0,0,0,.5);}
+  .login-box h1{font-size:1.5rem; margin-bottom:6px; color:var(--ink);}
+  .login-box p{font-size:.85rem; color:var(--ink-soft); margin-bottom:26px;}
+  .login-box input{width:100%; padding:14px 16px; border:1px solid var(--line); border-radius:12px; font-size:.95rem; margin-bottom:14px; text-align:center; letter-spacing:.1em;}
+  .login-box input:focus{outline:none; border-color:var(--gold);}
+  .login-box button{width:100%; padding:14px; border:none; border-radius:var(--r-pill); background:var(--gold); color:#2b2416; font-weight:700; font-size:.85rem; letter-spacing:.05em; text-transform:uppercase; cursor:pointer; transition:background .2s;}
+  .login-box button:hover{background:var(--gold-deep);}
+  .login-err{color:var(--bad); font-size:.8rem; margin-top:12px; display:none;}
+  .login-err.show{display:block;}
+
+  /* App shell */
+  #app{display:none;}
+  #app.show{display:block;}
+  header{background:var(--navy-deep); padding:18px 32px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:50; box-shadow:0 8px 20px -12px rgba(0,0,0,.4);}
+  .logo{display:flex; align-items:center; gap:10px; color:#fff; font-family:'Fraunces',serif; letter-spacing:.03em; text-transform:uppercase; font-size:1.05rem;}
+  .logo .mark{width:32px; height:32px; border-radius:50%; background:var(--gold); display:flex; align-items:center; justify-content:center; color:#2b2416; font-weight:700; font-size:.8rem;}
+  .hdr-right{display:flex; align-items:center; gap:16px;}
+  .hdr-right a{color:rgba(255,255,255,.75); font-size:.78rem; text-decoration:none; letter-spacing:.03em;}
+  .hdr-right a:hover{color:#fff;}
+  .logout-btn{background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.25); color:#fff; padding:9px 18px; border-radius:var(--r-pill); font-size:.75rem; font-weight:600; cursor:pointer; letter-spacing:.03em; transition:background .2s;}
+  .logout-btn:hover{background:rgba(255,255,255,.2);}
+
+  .wrap{max-width:1100px; margin:0 auto; padding:32px 24px 80px;}
+
+  .stats-row{display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:32px;}
+  .stat-card{background:var(--card); border:1px solid var(--line); border-radius:var(--r-md); padding:20px 22px;}
+  .stat-card .num{font-family:'Fraunces',serif; font-size:1.9rem; color:var(--ink);}
+  .stat-card .lbl{font-size:.72rem; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-soft); font-weight:600; margin-top:4px;}
+
+  .tabs{display:flex; gap:8px; margin-bottom:24px; border-bottom:1px solid var(--line); flex-wrap:wrap;}
+  .tab-btn{background:none; border:none; padding:12px 20px; font-size:.82rem; font-weight:600; color:var(--ink-soft); cursor:pointer; border-bottom:2.5px solid transparent; transition:color .2s, border-color .2s; letter-spacing:.02em;}
+  .tab-btn.active{color:var(--ink); border-color:var(--gold-deep);}
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block;}
+
+  .filter-row{display:flex; gap:8px; margin-bottom:18px; flex-wrap:wrap;}
+  .filter-chip{background:var(--card); border:1px solid var(--line); padding:8px 16px; border-radius:var(--r-pill); font-size:.75rem; font-weight:600; color:var(--ink-soft); cursor:pointer; transition:all .2s;}
+  .filter-chip.active{background:var(--navy-deep); color:#fff; border-color:var(--navy-deep);}
+
+  .booking-card{background:var(--card); border:1px solid var(--line); border-radius:var(--r-md); padding:22px 24px; margin-bottom:14px; display:flex; justify-content:space-between; gap:20px; flex-wrap:wrap;}
+  .bk-main{flex:1; min-width:240px;}
+  .bk-top{display:flex; align-items:center; gap:10px; margin-bottom:10px; flex-wrap:wrap;}
+  .bk-ref{font-family:'Fraunces',serif; font-size:1.05rem; color:var(--ink);}
+  .status-pill{font-size:.64rem; text-transform:uppercase; font-weight:700; letter-spacing:.06em; padding:4px 12px; border-radius:var(--r-pill);}
+  .status-pill.pending{background:#fbf0d9; color:#8a6d1f;}
+  .status-pill.accepted{background:#e1f3e7; color:var(--ok);}
+  .status-pill.rejected{background:#fbe4e0; color:var(--bad);}
+  .bk-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px 20px; margin-bottom:8px;}
+  .bk-field .lbl{font-size:.64rem; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-soft); font-weight:700; margin-bottom:2px;}
+  .bk-field .val{font-size:.86rem; color:var(--ink);}
+  .bk-notes{font-size:.82rem; color:var(--ink-soft); margin-top:8px; font-style:italic;}
+  .bk-actions{display:flex; flex-direction:column; gap:8px; min-width:130px;}
+  .bk-actions button{padding:10px 16px; border-radius:var(--r-pill); border:none; font-size:.74rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase; cursor:pointer; transition:opacity .2s;}
+  .bk-actions button:hover{opacity:.85;}
+  .btn-accept{background:var(--ok); color:#fff;}
+  .btn-reject{background:#efd9d4; color:var(--bad);}
+  .btn-delete{background:var(--clay-lt); color:var(--ink-soft);}
+  .empty-state{text-align:center; padding:60px 20px; color:var(--ink-soft);}
+  .empty-state svg{width:48px; height:48px; margin-bottom:14px; opacity:.4;}
+
+  /* Availability calendar */
+  .avail-panel{background:var(--card); border:1px solid var(--line); border-radius:var(--r-lg); padding:28px; max-width:480px;}
+  .avail-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;}
+  .avail-head button{background:var(--clay-lt); border:none; width:34px; height:34px; border-radius:50%; font-size:1.1rem; cursor:pointer; color:var(--ink);}
+  .avail-head .mlabel{font-family:'Fraunces',serif; font-size:1.1rem;}
+  .avail-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:6px; text-align:center;}
+  .avail-grid .dow{font-size:.68rem; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-soft); font-weight:700; padding-bottom:6px;}
+  .avail-day{aspect-ratio:1; display:flex; align-items:center; justify-content:center; border-radius:10px; font-size:.82rem; cursor:pointer; transition:transform .15s, background .15s;}
+  .avail-day.empty{visibility:hidden;}
+  .avail-day.open{background:var(--clay-lt); color:var(--ink);}
+  .avail-day.open:hover{background:#e2e2e2; transform:scale(1.06);}
+  .avail-day.blocked{background:var(--navy-deep); color:#fff;}
+  .avail-day.booked-auto{background:#efd9d4; color:var(--bad); cursor:not-allowed;}
+  .avail-day.past{color:#c9c9c9; cursor:not-allowed;}
+  .avail-legend{display:flex; gap:16px; margin-top:18px; flex-wrap:wrap; font-size:.74rem; color:var(--ink-soft);}
+  .avail-legend .item{display:flex; align-items:center; gap:6px;}
+  .avail-legend .dot{width:11px; height:11px; border-radius:4px;}
+  .avail-legend .dot.open{background:var(--clay-lt); border:1px solid var(--line);}
+  .avail-legend .dot.blocked{background:var(--navy-deep);}
+  .avail-legend .dot.booked-auto{background:#efd9d4;}
+  .avail-note{margin-top:14px; font-size:.8rem; color:var(--ink-soft);}
+</style>
+</head>
+<body>
+
+<div id="loginGate">
+  <div class="login-box">
+    <h1>Admin Access</h1>
+    <p>Enter the admin passcode to continue.</p>
+    <input type="password" id="passInput" placeholder="Passcode" onkeydown="if(event.key==='Enter')tryLogin()">
+    <button onclick="tryLogin()">Enter</button>
+    <div class="login-err" id="loginErr">Incorrect passcode. Try again.</div>
+  </div>
+</div>
+
+<div id="app">
+  <header>
+    <div class="logo"><span class="mark">P</span>Polaris Admin</div>
+    <div class="hdr-right">
+      <a href="index.html">View Site</a>
+      <button class="logout-btn" onclick="logout()">Log Out</button>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="stats-row">
+      <div class="stat-card"><div class="num" id="statPending">0</div><div class="lbl">Pending</div></div>
+      <div class="stat-card"><div class="num" id="statAccepted">0</div><div class="lbl">Accepted</div></div>
+      <div class="stat-card"><div class="num" id="statRejected">0</div><div class="lbl">Rejected</div></div>
+      <div class="stat-card"><div class="num" id="statTotal">0</div><div class="lbl">Total Requests</div></div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="bookings" onclick="switchTab('bookings')">Booking Requests</button>
+      <button class="tab-btn" data-tab="availability" onclick="switchTab('availability')">Availability</button>
+    </div>
+
+    <div class="tab-panel active" id="tab-bookings">
+      <div class="filter-row">
+        <button class="filter-chip active" data-filter="all" onclick="setFilter('all')">All</button>
+        <button class="filter-chip" data-filter="pending" onclick="setFilter('pending')">Pending</button>
+        <button class="filter-chip" data-filter="accepted" onclick="setFilter('accepted')">Accepted</button>
+        <button class="filter-chip" data-filter="rejected" onclick="setFilter('rejected')">Rejected</button>
+      </div>
+      <div id="bookingsList"></div>
+    </div>
+
+    <div class="tab-panel" id="tab-availability">
+      <div class="avail-panel">
+        <div class="avail-head">
+          <button onclick="calPrev()">‹</button>
+          <span class="mlabel" id="avMonthLabel"></span>
+          <button onclick="calNext()">›</button>
+        </div>
+        <div class="avail-grid" id="avGrid">
+          <div class="dow">Su</div><div class="dow">Mo</div><div class="dow">Tu</div><div class="dow">We</div><div class="dow">Th</div><div class="dow">Fr</div><div class="dow">Sa</div>
+        </div>
+        <div class="avail-legend">
+          <div class="item"><span class="dot open"></span>Open</div>
+          <div class="item"><span class="dot blocked"></span>Manually Blocked</div>
+          <div class="item"><span class="dot booked-auto"></span>Booked (accepted)</div>
+        </div>
+        <div class="avail-note">Tap an open date to block it. Tap a blocked date to unblock. Dates from accepted bookings can't be edited here — reject or delete the booking instead.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const API_BASE = '/api';
+  const TOKEN_KEY = 'polarisAdminToken';
+
+  function getToken(){ return sessionStorage.getItem(TOKEN_KEY); }
+
+  // Wrapper around fetch that attaches the admin JWT and handles 401s
+  async function adminFetch(path, options={}){
+    const token = getToken();
+    const res = await fetch(`${API_BASE}${path}`, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        ...(options.headers || {})
+      }
+    });
+    if(res.status === 401){
+      sessionStorage.removeItem(TOKEN_KEY);
+      document.getElementById('app').classList.remove('show');
+      document.getElementById('loginGate').classList.remove('hidden');
+      document.getElementById('loginErr').textContent = 'Session expired. Please log in again.';
+      document.getElementById('loginErr').classList.add('show');
+      throw new Error('Unauthorized');
+    }
+    return res;
+  }
+
+  // ---- Login ----
+  async function tryLogin(){
+    const val = document.getElementById('passInput').value;
+    const loginErr = document.getElementById('loginErr');
+    const loginBtn = document.querySelector('.login-box button');
+    loginErr.classList.remove('show');
+    if(loginBtn){ loginBtn.disabled = true; loginBtn.textContent = 'Checking…'; }
+
+    try{
+      const res = await fetch(`${API_BASE}/admin/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ passcode: val })
+      });
+      const body = await res.json();
+
+      if(!res.ok){
+        loginErr.textContent = body.error || 'Incorrect passcode. Try again.';
+        loginErr.classList.add('show');
+        return;
+      }
+
+      sessionStorage.setItem(TOKEN_KEY, body.token);
+      document.getElementById('loginGate').classList.add('hidden');
+      document.getElementById('app').classList.add('show');
+      renderAll();
+    }catch(e){
+      console.error('login error:', e);
+      loginErr.textContent = 'Could not reach the server. Please try again.';
+      loginErr.classList.add('show');
+    }finally{
+      if(loginBtn){ loginBtn.disabled = false; loginBtn.textContent = 'Enter'; }
+    }
+  }
+  function logout(){
+    sessionStorage.removeItem(TOKEN_KEY);
+    location.reload();
+  }
+  if(getToken()){
+    document.getElementById('loginGate').classList.add('hidden');
+    document.getElementById('app').classList.add('show');
+  }
+
+  // ---- Tabs ----
+  function switchTab(name){
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab===name));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    document.getElementById('tab-'+name).classList.add('active');
+    if(name==='availability') renderAvailCal();
+  }
+
+  // ---- Bookings ----
+  let currentFilter = 'all';
+  function setFilter(f){
+    currentFilter = f;
+    document.querySelectorAll('.filter-chip').forEach(c=>c.classList.toggle('active', c.dataset.filter===f));
+    renderBookings();
+  }
+
+  function fmtDate(str){
+    if(!str) return '';
+    const d = new Date(str+'T00:00:00');
+    const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+  }
+
+  async function renderStats(){
+    try{
+      const res = await adminFetch('/admin/stats');
+      if(!res.ok) return;
+      const stats = await res.json();
+      document.getElementById('statPending').textContent = stats.pending;
+      document.getElementById('statAccepted').textContent = stats.accepted;
+      document.getElementById('statRejected').textContent = stats.rejected;
+      document.getElementById('statTotal').textContent = stats.total;
+    }catch(e){
+      console.error('renderStats error:', e);
+    }
+  }
+
+  async function renderBookings(){
+    const container = document.getElementById('bookingsList');
+    let list;
+    try{
+      const path = currentFilter !== 'all' ? `/admin/bookings?status=${currentFilter}` : '/admin/bookings';
+      const res = await adminFetch(path);
+      if(!res.ok) throw new Error('Failed to load bookings');
+      list = await res.json();
+    }catch(e){
+      console.error('renderBookings error:', e);
+      container.innerHTML = `<div class="empty-state"><div>Could not load bookings. Please refresh.</div></div>`;
+      return;
+    }
+
+    if(list.length===0){
+      container.innerHTML = `<div class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 9h18"/><path d="M8 3v4M16 3v4"/></svg>
+        <div>No booking requests here yet.</div>
+      </div>`;
+      return;
+    }
+
+    container.innerHTML = list.map(b => `
+      <div class="booking-card">
+        <div class="bk-main">
+          <div class="bk-top">
+            <span class="bk-ref">${b.ref}</span>
+            <span class="status-pill ${b.status}">${b.status}</span>
+          </div>
+          <div class="bk-grid">
+            <div class="bk-field"><div class="lbl">Package</div><div class="val">${b.packageLabel || b.package}</div></div>
+            <div class="bk-field"><div class="lbl">Dates</div><div class="val">${fmtDate(b.checkin)} → ${fmtDate(b.checkout)}</div></div>
+            <div class="bk-field"><div class="lbl">Guest</div><div class="val">${b.name}</div></div>
+            <div class="bk-field"><div class="lbl">Contact</div><div class="val">${b.phone}</div></div>
+            <div class="bk-field"><div class="lbl">Guests</div><div class="val">${b.guests}</div></div>
+            ${b.fb ? `<div class="bk-field"><div class="lbl">Facebook</div><div class="val">${b.fb}</div></div>` : ''}
+            ${b.email ? `<div class="bk-field"><div class="lbl">Email</div><div class="val">${b.email}</div></div>` : ''}
+          </div>
+          ${b.notes ? `<div class="bk-notes">"${b.notes}"</div>` : ''}
+        </div>
+        <div class="bk-actions">
+          ${b.status!=='accepted' ? `<button class="btn-accept" onclick="updateStatus('${b.ref}','accepted')">Accept</button>` : ''}
+          ${b.status!=='rejected' ? `<button class="btn-reject" onclick="updateStatus('${b.ref}','rejected')">Reject</button>` : ''}
+          <button class="btn-delete" onclick="deleteBooking('${b.ref}')">Delete</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  async function updateStatus(ref, status){
+    try{
+      const res = await adminFetch(`/admin/bookings/${ref}/status`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status })
+      });
+      if(!res.ok){
+        const body = await res.json().catch(()=>({}));
+        alert(body.error || 'Failed to update booking status.');
+        return;
+      }
+      renderAll();
+    }catch(e){
+      console.error('updateStatus error:', e);
+    }
+  }
+
+  async function deleteBooking(ref){
+    if(!confirm('Delete this booking request permanently?')) return;
+    try{
+      const res = await adminFetch(`/admin/bookings/${ref}`, { method: 'DELETE' });
+      if(!res.ok){
+        const body = await res.json().catch(()=>({}));
+        alert(body.error || 'Failed to delete booking.');
+        return;
+      }
+      renderAll();
+    }catch(e){
+      console.error('deleteBooking error:', e);
+    }
+  }
+
+  // ---- Availability calendar ----
+  const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  let calDate = new Date();
+  function toKey(y,m,d){ return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
+
+  // Fetches both manually-blocked dates and accepted-booking dates fresh from the API.
+  // Returns { blocked: Set, autoBooked: Set } — blocked dates the admin can toggle,
+  // autoBooked dates come from accepted bookings and aren't directly editable here.
+  async function fetchAvailabilityData(){
+    try{
+      const [blockedRes, bookingsRes] = await Promise.all([
+        adminFetch('/admin/blocked-dates'),
+        adminFetch('/admin/bookings?status=accepted')
+      ]);
+      const blockedList = blockedRes.ok ? await blockedRes.json() : [];
+      const acceptedBookings = bookingsRes.ok ? await bookingsRes.json() : [];
+
+      const blocked = new Set(blockedList.map(b=>b.date));
+      const autoBooked = new Set();
+      acceptedBookings.forEach(b=>{
+        const s=new Date(b.checkin+'T00:00:00'), e=new Date(b.checkout+'T00:00:00');
+        for(let dt=new Date(s); dt<=e; dt.setDate(dt.getDate()+1)){
+          autoBooked.add(toKey(dt.getFullYear(),dt.getMonth(),dt.getDate()));
+        }
+      });
+      return { blocked, autoBooked };
+    }catch(e){
+      console.error('fetchAvailabilityData error:', e);
+      return { blocked: new Set(), autoBooked: new Set() };
+    }
+  }
+
+  async function renderAvailCal(){
+    const { blocked, autoBooked } = await fetchAvailabilityData();
+
+    const y = calDate.getFullYear(), m = calDate.getMonth();
+    document.getElementById('avMonthLabel').textContent = `${months[m]} ${y}`;
+    const grid = document.getElementById('avGrid');
+    grid.querySelectorAll('.avail-day').forEach(n=>n.remove());
+
+    const firstDay = new Date(y,m,1).getDay();
+    const daysInMonth = new Date(y,m+1,0).getDate();
+    const today = new Date(); today.setHours(0,0,0,0);
+
+    for(let i=0;i<firstDay;i++){
+      const el=document.createElement('div'); el.className='avail-day empty'; grid.appendChild(el);
+    }
+    for(let d=1; d<=daysInMonth; d++){
+      const el=document.createElement('div');
+      const key = toKey(y,m,d);
+      const thisDate = new Date(y,m,d);
+      let cls='avail-day';
+
+      if(thisDate < today){
+        cls+=' past';
+      } else if(autoBooked.has(key)){
+        cls+=' booked-auto';
+      } else if(blocked.has(key)){
+        cls+=' blocked';
+        el.onclick=()=>toggleBlock(key, true);
+      } else {
+        cls+=' open';
+        el.onclick=()=>toggleBlock(key, false);
+      }
+
+      el.className=cls;
+      el.textContent=d;
+      grid.appendChild(el);
+    }
+  }
+
+  async function toggleBlock(key, isCurrentlyBlocked){
+    try{
+      const res = isCurrentlyBlocked
+        ? await adminFetch(`/admin/blocked-dates/${key}`, { method: 'DELETE' })
+        : await adminFetch('/admin/blocked-dates', { method: 'POST', body: JSON.stringify({ date: key }) });
+      if(!res.ok){
+        const body = await res.json().catch(()=>({}));
+        alert(body.error || 'Failed to update blocked date.');
+        return;
+      }
+      renderAvailCal();
+    }catch(e){
+      console.error('toggleBlock error:', e);
+    }
+  }
+
+  function calPrev(){ calDate.setMonth(calDate.getMonth()-1); renderAvailCal(); }
+  function calNext(){ calDate.setMonth(calDate.getMonth()+1); renderAvailCal(); }
+
+  function renderAll(){
+    renderStats();
+    renderBookings();
+    renderAvailCal();
+  }
+  if(getToken()) renderAll();
+</script>
+
+</body>
+</html>

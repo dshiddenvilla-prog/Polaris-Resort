@@ -762,7 +762,18 @@
   // as CHECK-OUT, since only that day's checkout time matters there, not the whole day.
   function hasConflictForRange(startKey, endKey, pkgKey){
     const s = new Date(startKey+'T00:00:00'), e = new Date(endKey+'T00:00:00');
-    for(let dt=new Date(s); dt<=e; dt.setDate(dt.getDate()+1)){
+    // Only the NIGHTS of the stay count against the flat/manual block list.
+    // For a real two-endpoint range, that's startKey up to (not including) endKey —
+    // endKey is the checkout day, and whether it's usable depends on the checkout
+    // TIME, which the time-aware check below already handles. Including endKey here
+    // was the bug: it made any date that happened to be someone else's check-in day
+    // (and thus in the flat list) unusable as a checkout day too, even when the
+    // actual times didn't overlap.
+    // For the single-day self-check (startKey === endKey, used to decide whether a
+    // day is even clickable as a check-in), we still need to check that day itself —
+    // otherwise an occupied night would wrongly show as open to start a stay on.
+    const isSingleDayProbe = s.getTime() === e.getTime();
+    for(let dt=new Date(s); isSingleDayProbe ? dt<=e : dt<e; dt.setDate(dt.getDate()+1)){
       const k=toKey(dt.getFullYear(), dt.getMonth(), dt.getDate());
       if(blockedDates.has(k)) return true; // full-day manual block always wins
     }

@@ -756,21 +756,30 @@
 
   function toKey(y,m,d){ return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
 
-  // Would booking `pkgKey` with check-in `key` (and, once both ends are picked, check-out
-  // `endKey`) overlap an existing accepted booking? Falls back to whole-day blocking if
-  // no package is chosen yet or the backend hasn't sent per-booking package/time data.
-  function dateConflicts(key, pkgKey){
-    if(blockedDates.has(key)) return true;
+  // Would a stay of package `pkgKey` running from `startKey` (check-in) through
+  // `endKey` (check-out) overlap an existing accepted booking or a fully-blocked
+  // (maintenance) date? This is range-aware — critical for the day you're picking
+  // as CHECK-OUT, since only that day's checkout time matters there, not the whole day.
+  function hasConflictForRange(startKey, endKey, pkgKey){
+    const s = new Date(startKey+'T00:00:00'), e = new Date(endKey+'T00:00:00');
+    for(let dt=new Date(s); dt<=e; dt.setDate(dt.getDate()+1)){
+      const k=toKey(dt.getFullYear(), dt.getMonth(), dt.getDate());
+      if(blockedDates.has(k)) return true; // full-day manual block always wins
+    }
     if(!bookings.length) return false; // old backend shape — nothing more we can check
-    const times = PKG_TIMES[pkgKey || 'vip'];
-    const candStart = occupiedRange(key, pkgKey || 'vip', true);
-    const candEnd = occupiedRange(key, pkgKey || 'vip', false);
-    // Day-tour occupies same-day; if candEnd ends up before candStart (shouldn't normally
-    // happen) just treat the whole day as occupied.
+    const rStart = occupiedRange(startKey, pkgKey || 'vip', true);
+    const rEnd = occupiedRange(endKey, pkgKey || 'vip', false);
     return bookings.some(b=>{
       const r = bookingRange(b);
-      return candStart < r.end && r.start < candEnd;
+      return rStart < r.end && r.start < rEnd;
     });
+  }
+
+  // Single-day tentative check — used when there's no range in progress yet (i.e.
+  // we're picking a check-in date and don't know the check-out date), so we just
+  // ask "could a stay starting and ending on this same day work here?"
+  function dateConflicts(key, pkgKey){
+    return hasConflictForRange(key, key, pkgKey);
   }
 
   function renderAvailCal(){
@@ -795,11 +804,20 @@
 
       if(thisDate < today){
         cls+=' past';
-      } else if(dateConflicts(key, selectedPkg)){
-        cls+=' booked';
       } else {
-        cls+=' open';
-        el.onclick=()=>pickDate(key);
+        // While a check-in is already picked and we're choosing check-out, judge each
+        // candidate day by the WHOLE prospective stay (rangeStart → this day), not this
+        // day in isolation — a date can be a fine check-out even if it's mid-occupied
+        // by someone else's later check-in that same day.
+        const conflicted = (rangeStart && !rangeEnd && key!==rangeStart)
+          ? hasConflictForRange(...(key<rangeStart ? [key,rangeStart] : [rangeStart,key]), selectedPkg)
+          : dateConflicts(key, selectedPkg);
+        if(conflicted){
+          cls+=' booked';
+        } else {
+          cls+=' open';
+          el.onclick=()=>pickDate(key);
+        }
       }
 
       if(rangeStart && key===rangeStart) cls+=' sel';
@@ -824,14 +842,9 @@
     } else {
       if(key <= rangeStart){ rangeEnd = rangeStart; rangeStart = key; }
       else { rangeEnd = key; }
-      // check no conflicting dates fall inside the range, for the selected package
-      let clash=false;
-      const s=new Date(rangeStart), e=new Date(rangeEnd);
-      for(let dt=new Date(s); dt<=e; dt.setDate(dt.getDate()+1)){
-        const k=toKey(dt.getFullYear(),dt.getMonth(),dt.getDate());
-        if(dateConflicts(k, selectedPkg)){ clash=true; break; }
-      }
-      if(clash){
+      // check the whole prospective stay against existing bookings/blocks, for the
+      // selected package — a single range-aware check, not a day-by-day loop.
+      if(hasConflictForRange(rangeStart, rangeEnd, selectedPkg)){
         note.textContent = 'Some dates in that range are already booked or too close to another stay. Please pick different dates.';
         rangeStart=null; rangeEnd=null;
       } else {
